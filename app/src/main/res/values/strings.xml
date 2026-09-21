@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">EcoRuta Dispositivo</string>
+
+    <!-- Foreground service notification -->
+    <string name="notification_channel_name">Transmisión de ruta</string>
+    <string name="notification_title">EcoRuta en servicio</string>
+    <string name="notification_text">Equipo activo y reportando</string>
+
+    <!-- Pairing -->
+    <string name="pairing_title">Vincular equipo</string>
+    <string name="pairing_code_label">Código de vinculación</string>
+    <string name="pairing_submit">Vincular</string>
+
+    <!-- Idle -->
+    <string name="idle_status">En espera</string>
+    <string name="idle_start_trip">Iniciar recorrido</string>
+
+    <!-- Trip -->
+    <string name="trip_transmitting">Transmitiendo</string>
+    <string name="trip_gps">GPS: %1$s</string>
+    <string name="trip_online">Conexión: en línea</string>
+    <string name="trip_offline">Conexión: sin red</string>
+    <string name="trip_battery">Batería: %1$d %%</string>
+    <string name="trip_last_sent">Último envío: %1$s</string>
+    <string name="trip_pending">Posiciones pendientes: %1$d</string>
+    <string name="trip_report_incident">Reportar incidencia</string>
+    <string name="trip_finish">Finalizar recorrido</string>
+    <string name="gps_no_signal">sin señal</string>
+    <string name="gps_weak">señal débil</string>
+    <string name="gps_good">buena</string>
+
+    <!-- Incident -->
+    <string name="incident_title">Reportar incidencia</string>
+    <string name="incident_road_closed">Calle cerrada</string>
+    <string name="incident_mechanical_failure">Falla mecánica</string>
+    <string name="incident_detour">Desvío</string>
+    <string name="incident_congestion">Congestión</string>
+    <string name="incident_description_label">Observación (opcional)</string>
+    <string name="incident_send">Enviar</string>
+    <string name="incident_cancel">Cancelar</string>
+
+    <!-- Errors -->
+    <string name="error_offline">Sin conexión. Inténtalo de nuevo.</string>
+    <string name="error_unauthorized">El equipo no está autorizado. Vincúlalo de nuevo.</string>
+    <string name="error_trip_already_open">Esta unidad ya tiene un recorrido abierto.</string>
+    <string name="error_rejected">El servidor rechazó la solicitud.</string>
+    <string name="error_server">Error del servidor. Inténtalo más tarde.</string>
+    <string name="error_invalid_pairing_code">Código inválido, vencido o ya usado.</string>
+    <string name="error_not_paired">El equipo no está vinculado.</string>
+    <string name="error_no_active_trip">No hay un recorrido activo.</string>
+    <string name="error_no_route_assigned">Esta unidad no tiene una ruta asignada.</string>
+    <string name="error_location_unavailable">No hay posición GPS disponible todavía.</string>
+    <string name="error_unexpected">Ocurrió un error inesperado.</string>
+</resources>

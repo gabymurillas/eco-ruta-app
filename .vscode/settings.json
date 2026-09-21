@@ -1,0 +1,17 @@
+{
+  "files.exclude": {
+    "**/.gradle": true,
+    "**/.kotlin": true,
+    "**/build": true
+  },
+  "search.exclude": {
+    "**/build": true,
+    "**/.gradle": true
+  },
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "editor.rulers": [120],
+  "kotlin.languageServer.enabled": true,
+  "java.configuration.updateBuildConfiguration": "automatic"
+}
