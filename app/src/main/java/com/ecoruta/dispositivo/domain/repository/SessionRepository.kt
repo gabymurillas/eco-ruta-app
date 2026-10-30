@@ -10,6 +10,9 @@ interface SessionRepository {
 
     suspend fun current(): DeviceSession?
 
+    /** Unit of the last pairing, even if its session has since been revoked. */
+    suspend fun lastPairedUnitId(): String?
+
     /** Exchanges a one-time pairing code for the device identity and stores it. */
     suspend fun pair(code: String): Outcome<DeviceSession>
 }

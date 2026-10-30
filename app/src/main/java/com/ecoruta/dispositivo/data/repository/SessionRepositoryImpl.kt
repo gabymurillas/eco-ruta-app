@@ -23,6 +23,8 @@ class SessionRepositoryImpl(
 
     override suspend fun current(): DeviceSession? = session.first()
 
+    override suspend fun lastPairedUnitId(): String? = preferences.lastPairedUnitId()
+
     override suspend fun pair(code: String): Outcome<DeviceSession> =
         safeApiCall { authApi.pair(PairRequestDto(code)) }
             .map { it.toDomain() }

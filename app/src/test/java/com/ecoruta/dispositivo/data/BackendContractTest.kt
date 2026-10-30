@@ -112,6 +112,21 @@ class BackendContractTest {
     }
 
     @Test
+    fun `zero, negative or broken parameters are ignored so a typo cannot flood the server`() {
+        val params = mapOf(
+            "emision_movimiento_s" to 0.0,
+            "emision_detenido_s" to -30.0,
+            "exactitud_maxima_m" to Double.NaN,
+            "sin_senal_umbral_s" to 240.0,
+        ).toOperationParams()
+
+        assertEquals(OperationParams().movingInterval, params.movingInterval)
+        assertEquals(OperationParams().stoppedInterval, params.stoppedInterval)
+        assertEquals(OperationParams().maxAccuracyMeters, params.maxAccuracyMeters)
+        assertEquals(240.seconds, params.gpsStaleAfter)
+    }
+
+    @Test
     fun `parameters the server does not define keep their defaults`() {
         val params = mapOf("emision_movimiento_s" to 7.0).toOperationParams()
 

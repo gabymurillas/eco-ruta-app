@@ -70,6 +70,9 @@ di/             AppContainer: raíz de composición manual.
    lectura más reciente de cada llamada, y partir un respaldo atrasado haría que los trozos viejos
    evaluaran posiciones que la unidad ya dejó atrás. Las filas se borran solo tras el 200.
 7. El buffer conserva máximo 2 h. Un 4xx no reintentable descarta el lote para no bloquear la cola.
+8. Si el GPS o un latido fallan, se reintenta (GPS a los 10 s); ninguno detiene al otro ni al servicio.
+9. Si el servidor rechaza el token de renovación, la sesión se borra y el equipo vuelve a la pantalla de
+   vinculación. Revincular a la misma unidad conserva su viaje y su cola; a otra unidad, los descarta.
 
 ## Modo quiosco (una vez por equipo)
 
@@ -94,8 +97,9 @@ La app usa **solo** la clave publicable (`apikey`) y el token de sesión del dis
 | Renovar token      | `POST auth/v1/token?grant_type=refresh_token`                    | Automático ante un 401 (`SessionAuthenticator`). |
 | Parámetros         | `GET rest/v1/parametros?select=clave,valor`                      | `emision_movimiento_s`, `emision_detenido_s`, `exactitud_maxima_m`, `sin_senal_umbral_s`. Se cachean para arrancar sin red. |
 | Ruta de la unidad  | `GET rest/v1/unidades?id=eq.<id>&select=ruta_id`                 | `viajes` e `incidencias` exigen `ruta_id`. Se lee en vivo al abrir viaje o incidencia: el `ruta_id` del canje es el de *cuando se vinculó* y el admin puede reasignar la unidad. |
-| Iniciar viaje      | `POST rest/v1/viajes` `{unidad_id, ruta_id}`                     | 409 si la unidad ya tiene uno abierto. |
-| Finalizar viaje    | `PATCH rest/v1/viajes?id=eq.<id>` `{finalizado_at}`              | |
+| Iniciar viaje      | `POST rest/v1/viajes` `{unidad_id, ruta_id}`                     | Antes envía el cierre pendiente del viaje anterior; sin red no abre otro. Un 409 (respuesta perdida) adopta el viaje abierto. |
+| Viaje abierto      | `GET rest/v1/viajes?unidad_id=eq.<id>&finalizado_at=is.null`     | Solo tras un 409. Lectura pública. |
+| Finalizar viaje    | `PATCH rest/v1/viajes?id=eq.<id>` `{finalizado_at}`              | Funciona sin red: se guarda con la hora real en que el conductor finalizó y `SyncWorker` lo envía al volver la conexión. |
 | Posiciones         | `POST functions/v1/registrar-posicion` `{viaje_id, posiciones:[{lat,lng,exactitud_m,velocidad_kmh,capturado_at}]}` | Guarda **y evalúa geocercas**. El insert directo a `posiciones` no evalúa nada. Sin `unidad_id` (sale del JWT). Un 5xx = no se guardó: se reintenta. |
 | Incidencias        | `POST rest/v1/incidencias` `{ruta_id, unidad_id, tipo, ...}`     | `tipo`: `calle_cerrada, falla_mecanica, desvio, congestion`. |
 | Latido             | `POST rest/v1/rpc/registrar_salud_del_dispositivo` `{bateria}`   | RPC, no PATCH: la unidad sale del JWT y `ultima_senal_at` la pone el servidor. Anon recibe 401. |

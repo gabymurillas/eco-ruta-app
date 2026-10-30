@@ -7,7 +7,7 @@ import androidx.datastore.preferences.preferencesDataStoreFile
 import com.ecoruta.dispositivo.BuildConfig
 import com.ecoruta.dispositivo.data.local.db.AppDatabase
 import com.ecoruta.dispositivo.data.local.prefs.DevicePreferences
-import com.ecoruta.dispositivo.data.local.prefs.TokenCipher
+import com.ecoruta.dispositivo.data.local.prefs.KeystoreTokenCipher
 import com.ecoruta.dispositivo.data.remote.RemoteServices
 import com.ecoruta.dispositivo.data.remote.SupabaseConfig
 import com.ecoruta.dispositivo.data.remote.UnitRouteResolver
@@ -37,6 +37,7 @@ import com.ecoruta.dispositivo.domain.system.TelemetryStatusStore
 import com.ecoruta.dispositivo.domain.usecase.CaptureTelemetryUseCase
 import com.ecoruta.dispositivo.domain.usecase.FinishTripUseCase
 import com.ecoruta.dispositivo.domain.usecase.ObserveDeviceStateUseCase
+import com.ecoruta.dispositivo.domain.usecase.ObservePendingTripCloseUseCase
 import com.ecoruta.dispositivo.domain.usecase.ObserveTripStatusUseCase
 import com.ecoruta.dispositivo.domain.usecase.PairDeviceUseCase
 import com.ecoruta.dispositivo.domain.usecase.ReportIncidentUseCase
@@ -44,6 +45,7 @@ import com.ecoruta.dispositivo.domain.usecase.ResumeTelemetryUseCase
 import com.ecoruta.dispositivo.domain.usecase.RunTelemetrySessionUseCase
 import com.ecoruta.dispositivo.domain.usecase.SendHeartbeatUseCase
 import com.ecoruta.dispositivo.domain.usecase.StartTripUseCase
+import com.ecoruta.dispositivo.domain.usecase.SyncPendingDataUseCase
 import com.ecoruta.dispositivo.service.ForegroundTelemetryController
 import com.ecoruta.dispositivo.service.KioskController
 import com.ecoruta.dispositivo.work.WorkManagerSyncScheduler
@@ -67,7 +69,7 @@ class AppContainer(context: Context) {
     // Storage
     private val devicePreferences = DevicePreferences(
         store = PreferenceDataStoreFactory.create(scope = appScope) { appContext.preferencesDataStoreFile("device") },
-        cipher = TokenCipher(),
+        cipher = KeystoreTokenCipher(),
     )
     private val database by lazy { AppDatabase.create(appContext) }
 
@@ -105,9 +107,9 @@ class AppContainer(context: Context) {
         SessionRepositoryImpl(devicePreferences, remote.authApi)
     }
     private val tripRepository: TripRepository by lazy {
-        TripRepositoryImpl(devicePreferences, remote.restApi, unitRoutes, clock)
+        TripRepositoryImpl(devicePreferences, remote.restApi, unitRoutes, syncScheduler, clock)
     }
-    val telemetryRepository: TelemetryRepository by lazy {
+    private val telemetryRepository: TelemetryRepository by lazy {
         TelemetryRepositoryImpl(
             dao = database.pendingPositionDao(),
             api = remote.restApi,
@@ -125,12 +127,25 @@ class AppContainer(context: Context) {
     }
 
     // Use cases
-    val pairDevice by lazy { PairDeviceUseCase(sessionRepository, telemetryController) }
+    val pairDevice by lazy {
+        PairDeviceUseCase(sessionRepository, tripRepository, telemetryRepository, telemetryController)
+    }
     val startTrip by lazy { StartTripUseCase(sessionRepository, tripRepository) }
-    val finishTrip by lazy { FinishTripUseCase(tripRepository, telemetryRepository) }
-    val reportIncident by lazy { ReportIncidentUseCase(sessionRepository, locationSource, incidentRepository) }
+    val finishTrip by lazy { FinishTripUseCase(tripRepository) }
+    val syncPendingData by lazy { SyncPendingDataUseCase(telemetryRepository, tripRepository) }
+    val reportIncident by lazy {
+        ReportIncidentUseCase(
+            sessions = sessionRepository,
+            location = locationSource,
+            statusStore = statusStore,
+            params = parametersRepository,
+            clock = clock,
+            incidents = incidentRepository,
+        )
+    }
     val resumeTelemetry by lazy { ResumeTelemetryUseCase(sessionRepository, telemetryController) }
     val observeDeviceState by lazy { ObserveDeviceStateUseCase(sessionRepository, tripRepository) }
+    val observePendingTripClose by lazy { ObservePendingTripCloseUseCase(tripRepository) }
     val observeTripStatus by lazy {
         ObserveTripStatusUseCase(statusStore, telemetryRepository, connectivity, batterySource, policy, clock)
     }

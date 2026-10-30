@@ -21,6 +21,7 @@
     <!-- Idle -->
     <string name="idle_status">En espera</string>
     <string name="idle_start_trip">Iniciar recorrido</string>
+    <string name="idle_pending_close">El cierre del recorrido anterior se enviará al volver la conexión.</string>
 
     <!-- Trip -->
     <string name="trip_transmitting">Transmitiendo</string>

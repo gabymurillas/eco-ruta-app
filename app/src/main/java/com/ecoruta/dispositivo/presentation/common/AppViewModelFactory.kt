@@ -18,7 +18,8 @@ class AppViewModelFactory(private val container: AppContainer) : ViewModelProvid
     override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T = when (modelClass) {
         MainViewModel::class.java -> MainViewModel(container.observeDeviceState, container.resumeTelemetry)
         PairingViewModel::class.java -> PairingViewModel(container.pairDevice)
-        IdleViewModel::class.java -> IdleViewModel(container.observeDeviceState, container.startTrip)
+        IdleViewModel::class.java ->
+            IdleViewModel(container.observeDeviceState, container.observePendingTripClose, container.startTrip)
         TripViewModel::class.java -> TripViewModel(container.observeTripStatus, container.finishTrip)
         IncidentViewModel::class.java -> IncidentViewModel(container.reportIncident)
         else -> error("Unknown ViewModel class: ${modelClass.name}")

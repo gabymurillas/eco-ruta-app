@@ -56,13 +56,19 @@ fun Incident.toDto(routeId: String) = IncidentDto(
     location = point.toEwkt(),
 )
 
-/** Applies the backend's `parametros` on top of [base]; keys the server does not define keep [base]. */
+/**
+ * Applies the backend's `parametros` on top of [base]. Keys the server does not define, and values
+ * that are zero, negative or not a number, keep [base]: a 0 s interval would spin the heartbeat in
+ * a tight loop and flood the server, so a typo in the panel must not reach the device.
+ */
 fun Map<String, Double>.toOperationParams(base: OperationParams = OperationParams()) = base.copy(
-    movingInterval = this[KEY_MOVING_INTERVAL_S]?.seconds ?: base.movingInterval,
-    stoppedInterval = this[KEY_STOPPED_INTERVAL_S]?.seconds ?: base.stoppedInterval,
-    maxAccuracyMeters = this[KEY_MAX_ACCURACY_M]?.toFloat() ?: base.maxAccuracyMeters,
-    gpsStaleAfter = this[KEY_SIGNAL_LOST_S]?.seconds ?: base.gpsStaleAfter,
+    movingInterval = positive(KEY_MOVING_INTERVAL_S)?.seconds ?: base.movingInterval,
+    stoppedInterval = positive(KEY_STOPPED_INTERVAL_S)?.seconds ?: base.stoppedInterval,
+    maxAccuracyMeters = positive(KEY_MAX_ACCURACY_M)?.toFloat() ?: base.maxAccuracyMeters,
+    gpsStaleAfter = positive(KEY_SIGNAL_LOST_S)?.seconds ?: base.gpsStaleAfter,
 )
+
+private fun Map<String, Double>.positive(key: String): Double? = this[key]?.takeIf { it.isFinite() && it > 0 }
 
 /** PostGIS expects longitude first: `SRID=4326;POINT(lon lat)`. */
 private fun GeoPoint.toEwkt(): String = "SRID=4326;POINT($longitude $latitude)"

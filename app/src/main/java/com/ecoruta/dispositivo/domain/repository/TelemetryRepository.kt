@@ -16,4 +16,7 @@ interface TelemetryRepository {
 
     /** Uploads everything queued. Returns a failure if delivery must be retried later. */
     suspend fun sync(): Outcome<Unit>
+
+    /** Drops every queued position; used when the device moves to another unit. */
+    suspend fun discardQueued()
 }

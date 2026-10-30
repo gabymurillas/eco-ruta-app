@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.ecoruta.dispositivo.core.onFailure
 import com.ecoruta.dispositivo.domain.model.DeviceState
 import com.ecoruta.dispositivo.domain.usecase.ObserveDeviceStateUseCase
+import com.ecoruta.dispositivo.domain.usecase.ObservePendingTripCloseUseCase
 import com.ecoruta.dispositivo.domain.usecase.StartTripUseCase
 import com.ecoruta.dispositivo.presentation.common.toMessageRes
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,12 +19,15 @@ import kotlinx.coroutines.launch
 data class IdleUiState(
     val unitName: String = "",
     val routeName: String = "",
+    /** The previous trip was finished offline and its close is still waiting to be sent. */
+    val hasPendingClose: Boolean = false,
     val isStarting: Boolean = false,
     @StringRes val errorRes: Int? = null,
 )
 
 class IdleViewModel(
     observeDeviceState: ObserveDeviceStateUseCase,
+    observePendingTripClose: ObservePendingTripCloseUseCase,
     private val startTrip: StartTripUseCase,
 ) : ViewModel() {
 
@@ -37,6 +41,9 @@ class IdleViewModel(
                     it.copy(unitName = idle.session.unitName, routeName = idle.session.routeName)
                 }
             }
+        }
+        viewModelScope.launch {
+            observePendingTripClose().collect { pending -> _uiState.update { it.copy(hasPendingClose = pending) } }
         }
     }
 

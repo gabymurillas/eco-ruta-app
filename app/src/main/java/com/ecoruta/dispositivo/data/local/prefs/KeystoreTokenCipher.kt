@@ -10,23 +10,30 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
+/** Encrypts the session tokens before they touch disk. */
+interface TokenCipher {
+    fun encrypt(plainText: String): String
+
+    /** Returns null when the value cannot be decrypted, e.g. the key was lost after a device reset. */
+    fun decrypt(encoded: String): String?
+}
+
 /**
  * Encrypts secrets with an AES-GCM key that lives in the Android Keystore and never leaves it.
  * A copy of the DataStore file alone is therefore useless: the tokens cannot be read without the key.
  */
-class TokenCipher {
+class KeystoreTokenCipher : TokenCipher {
 
     // Loading the Keystore is slow; defer it until a secret is actually read or written.
     private val keyStore by lazy { KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) } }
 
-    fun encrypt(plainText: String): String {
+    override fun encrypt(plainText: String): String {
         val cipher = Cipher.getInstance(TRANSFORMATION).apply { init(Cipher.ENCRYPT_MODE, secretKey()) }
         val payload = cipher.iv + cipher.doFinal(plainText.toByteArray(Charsets.UTF_8))
         return Base64.getEncoder().encodeToString(payload)
     }
 
-    /** Returns null when the value cannot be decrypted, e.g. the key was lost after a device reset. */
-    fun decrypt(encoded: String): String? = try {
+    override fun decrypt(encoded: String): String? = try {
         val payload = Base64.getDecoder().decode(encoded)
         val cipher = Cipher.getInstance(TRANSFORMATION).apply {
             init(Cipher.DECRYPT_MODE, secretKey(), GCMParameterSpec(TAG_BITS, payload, 0, IV_BYTES))
@@ -38,6 +45,9 @@ class TokenCipher {
         null
     }
 
+    // Synchronized: two threads generating the key at once would leave tokens encrypted with a
+    // key that the second generation replaced, and the session would be lost.
+    @Synchronized
     private fun secretKey(): SecretKey =
         (keyStore.getKey(KEY_ALIAS, null) as? SecretKey) ?: generateKey()
 

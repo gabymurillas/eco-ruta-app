@@ -34,8 +34,10 @@ fun AppNavHost(deviceState: DeviceState) {
         }
     }
 
-    LaunchedEffect(deviceState) {
-        val target = deviceState.toRoute()
+    // Keyed on the screen, not on the state: the state also changes when the session token is
+    // renewed (about hourly), and reacting to that would yank the driver out of an incident report.
+    val target = deviceState.toRoute()
+    LaunchedEffect(target) {
         if (navController.currentDestination?.hasRoute(target::class) != true) {
             navController.navigate(target) {
                 popUpTo(navController.graph.id) { inclusive = true }

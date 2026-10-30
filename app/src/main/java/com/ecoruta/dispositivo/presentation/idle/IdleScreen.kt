@@ -33,6 +33,7 @@ fun IdleScreen(state: IdleUiState, onStartTrip: () -> Unit) {
         Text(state.routeName, style = MaterialTheme.typography.headlineMedium)
         Text(state.unitName, style = MaterialTheme.typography.titleMedium)
         Text(stringResource(R.string.idle_status))
+        if (state.hasPendingClose) Text(stringResource(R.string.idle_pending_close))
         state.errorRes?.let { Text(stringResource(it), color = MaterialTheme.colorScheme.error) }
         Button(onClick = onStartTrip, enabled = !state.isStarting) {
             Text(stringResource(R.string.idle_start_trip))

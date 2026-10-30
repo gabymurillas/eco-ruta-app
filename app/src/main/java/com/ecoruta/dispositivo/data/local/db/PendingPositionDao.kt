@@ -21,6 +21,9 @@ interface PendingPositionDao {
     @Query("DELETE FROM pending_positions WHERE captured_at_ms < :thresholdMs")
     suspend fun deleteCapturedBefore(thresholdMs: Long)
 
+    @Query("DELETE FROM pending_positions")
+    suspend fun deleteAll()
+
     @Query("SELECT COUNT(*) FROM pending_positions")
     fun observeCount(): Flow<Int>
 }

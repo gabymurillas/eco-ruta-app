@@ -51,6 +51,8 @@ class TelemetryRepositoryImpl(
 
     override suspend fun sync(): Outcome<Unit> = uploadLock.withLock { uploadPending() }
 
+    override suspend fun discardQueued() = uploadLock.withLock { dao.deleteAll() }
+
     private suspend fun deliverOrDefer() {
         // If an upload is already draining the queue, it will pick up the new row too.
         if (!uploadLock.tryLock()) return

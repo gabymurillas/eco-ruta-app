@@ -27,6 +27,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 // runCurrent/advanceTimeBy are the way to drive virtual time in a test of an endless loop.
@@ -113,6 +114,17 @@ class RunTelemetrySessionUseCaseTest {
         runCurrent()
 
         assertEquals(1, parameters.refreshCount)
+        session.cancel()
+    }
+
+    @Test
+    fun `parameters are refreshed again every 15 minutes`() = runTest {
+        val session = launch { runSession()() }
+        runCurrent()
+
+        advance(15.minutes)
+
+        assertEquals(2, parameters.refreshCount)
         session.cancel()
     }
 

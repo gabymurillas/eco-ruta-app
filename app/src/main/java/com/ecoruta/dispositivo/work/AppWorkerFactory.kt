@@ -15,7 +15,7 @@ class AppWorkerFactory(private val container: AppContainer) : WorkerFactory() {
         workerParameters: WorkerParameters,
     ): ListenableWorker? = when (workerClassName) {
         SyncWorker::class.java.name ->
-            SyncWorker(appContext, workerParameters, container.telemetryRepository)
+            SyncWorker(appContext, workerParameters, container.syncPendingData)
         else -> null // fall back to the default reflective factory
     }
 }

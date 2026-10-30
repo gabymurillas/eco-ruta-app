@@ -166,6 +166,10 @@ private class FakePendingPositionDao : PendingPositionDao {
         rows.removeAll { it.id in ids }
     }
 
+    override suspend fun deleteAll() {
+        rows.clear()
+    }
+
     override suspend fun deleteCapturedBefore(thresholdMs: Long) {
         rows.removeAll { it.capturedAtMs < thresholdMs }
     }

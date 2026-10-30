@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -34,7 +35,20 @@ class RunTelemetrySessionUseCase(
         launch {
             // Settle on the server's calibration before the GPS is requested at its emission interval.
             guarded { parameters.refresh() }
+            launch { refreshParametersPeriodically() }
             captureWhileTripIsOpen()
+        }
+    }
+
+    /**
+     * A unit runs for weeks without restarting, and the thresholds get recalibrated after the GPS
+     * field test. The emission rate and signal thresholds follow a refresh at once; the GPS request
+     * interval is applied the next time capture starts (the next trip).
+     */
+    private suspend fun refreshParametersPeriodically() {
+        while (true) {
+            delay(PARAMETERS_REFRESH_INTERVAL)
+            guarded { parameters.refresh() }
         }
     }
 
@@ -73,5 +87,6 @@ class RunTelemetrySessionUseCase(
     private companion object {
         /** Short on purpose: every second without GPS is a gap in the unit's track. */
         val CAPTURE_RETRY_DELAY = 10.seconds
+        val PARAMETERS_REFRESH_INTERVAL = 15.minutes
     }
 }

@@ -52,6 +52,8 @@ class FixedParams(override val current: OperationParams = OperationParams()) : O
 
 class FakeSessionRepository(
     private var stored: DeviceSession? = TEST_SESSION,
+    private var lastUnitId: String? = stored?.unitId,
+    private val pairsTo: DeviceSession = TEST_SESSION,
 ) : SessionRepository {
     var pairedWithCode: String? = null
         private set
@@ -60,22 +62,39 @@ class FakeSessionRepository(
 
     override suspend fun current(): DeviceSession? = stored
 
+    override suspend fun lastPairedUnitId(): String? = lastUnitId
+
     override suspend fun pair(code: String): Outcome<DeviceSession> {
         pairedWithCode = code
-        return Outcome.Success(TEST_SESSION).also { stored = TEST_SESSION }
+        stored = pairsTo
+        lastUnitId = pairsTo.unitId
+        return Outcome.Success(pairsTo)
     }
 }
 
 class FakeTripRepository(activeTripId: String? = "trip-1") : TripRepository {
     override val activeTripId = MutableStateFlow(activeTripId)
+    override val hasPendingClose = MutableStateFlow(false)
+    var closeResult: Outcome<Unit> = Outcome.Success(Unit)
+    var forgotten = false
+        private set
 
     override suspend fun start(unitId: String): Outcome<Trip> = Outcome.Success(Trip("trip-1", unitId))
 
     override suspend fun finish(): Outcome<Unit> = Outcome.Success(Unit)
+
+    override suspend fun syncPendingClose(): Outcome<Unit> = closeResult
+
+    override suspend fun forget() {
+        forgotten = true
+    }
 }
 
 class FakeTelemetryRepository : TelemetryRepository {
     val enqueued = mutableListOf<Position>()
+    var syncResult: Outcome<Unit> = Outcome.Success(Unit)
+    var discarded = false
+        private set
 
     override val pendingCount: Flow<Int> = flowOf(0)
 
@@ -83,7 +102,11 @@ class FakeTelemetryRepository : TelemetryRepository {
         enqueued += position
     }
 
-    override suspend fun sync(): Outcome<Unit> = Outcome.Success(Unit)
+    override suspend fun sync(): Outcome<Unit> = syncResult
+
+    override suspend fun discardQueued() {
+        discarded = true
+    }
 }
 
 /** The first [failures] subscriptions fail like a provider error or a revoked permission would. */
