@@ -93,4 +93,13 @@ val DarkEcoColors = EcoColors(
     isDark = true,
 )
 
+/** The dark ground at the foot of the welcome photo; its text block continues it, in both themes. */
+val PhotoGround = Color(0xFF0D110D)
+
+/** Dims the background photo in the dark theme, so the screen reads as night like the rest. */
+val PhotoNightScrim = Color(0x66000000)
+
+/** Text over a photograph: always white, since the photo does not change with the theme. */
+val OnPhoto = Color.White
+
 val LocalEcoColors = staticCompositionLocalOf { LightEcoColors }

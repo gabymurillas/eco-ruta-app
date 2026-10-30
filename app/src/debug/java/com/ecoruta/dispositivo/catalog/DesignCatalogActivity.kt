@@ -25,6 +25,7 @@ import com.ecoruta.dispositivo.presentation.permission.LocationPermissionScreen
 import com.ecoruta.dispositivo.presentation.theme.EcoRutaTheme
 import com.ecoruta.dispositivo.presentation.trip.TripScreen
 import com.ecoruta.dispositivo.presentation.trip.TripUiState
+import com.ecoruta.dispositivo.presentation.welcome.WelcomeScreen
 import java.time.Instant
 
 /**
@@ -33,7 +34,7 @@ import java.time.Instant
  *
  * `adb shell am start -f 0x10008000 -n com.ecoruta.dispositivo/.catalog.DesignCatalogActivity --es screen trip --es theme dark`
  * (0x10008000 = new task + clear task: a fresh catalog in its own task, apart from the real app).
- * Screens: permission, pairing, pairing_error, idle, idle_offline, trip, trip_offline, trip_nogps,
+ * Screens: welcome, permission, pairing, pairing_error, idle, idle_offline, trip, trip_offline, trip_nogps,
  * trip_sent, incident. Themes: light, dark.
  */
 class DesignCatalogActivity : ComponentActivity() {
@@ -66,6 +67,7 @@ private fun Sample(screen: String) {
     )
     val idle = IdleUiState(unitName = "Unidad 12", routeName = "Ruta Centro – UNERG")
     when (screen) {
+        "welcome" -> WelcomeScreen {}
         "permission" -> LocationPermissionScreen({}, {})
         "pairing" -> PairingScreen(PairingUiState(code = "4T9"), {}, {})
         "pairing_error" -> PairingScreen(

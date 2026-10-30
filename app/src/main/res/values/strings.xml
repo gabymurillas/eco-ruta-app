@@ -27,6 +27,12 @@
     <string name="permission_request">Conceder permiso</string>
     <string name="permission_open_settings">Abrir ajustes</string>
 
+    <!-- Welcome -->
+    <string name="welcome_place">EcoRuta · San Juan de los Morros</string>
+    <string name="welcome_title">Este equipo viaja con la unidad</string>
+    <string name="welcome_text">Va conectado al vehículo y envía su posición en cada recorrido. Para empezar, vincúlalo con el código del panel de administración.</string>
+    <string name="welcome_start">Comenzar</string>
+
     <!-- Pairing -->
     <string name="pairing_title_1">Vincula</string>
     <string name="pairing_title_2">este equipo</string>

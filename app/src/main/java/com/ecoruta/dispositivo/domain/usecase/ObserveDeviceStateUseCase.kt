@@ -17,7 +17,7 @@ class ObserveDeviceStateUseCase(
     operator fun invoke(): Flow<DeviceState> =
         combine(sessions.session, trips.activeTripId) { session, tripId ->
             when {
-                session == null -> DeviceState.Unpaired
+                session == null -> DeviceState.Unpaired(firstTime = sessions.lastPairedUnitId() == null)
                 tripId == null -> DeviceState.Idle(session)
                 else -> DeviceState.OnTrip(session, tripId)
             }
