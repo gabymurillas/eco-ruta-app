@@ -16,6 +16,24 @@ val localProperties = Properties().apply {
 fun backendSetting(key: String): String =
     localProperties.getProperty(key) ?: providers.gradleProperty(key).get()
 
+// The placeholders in gradle.properties only let tests and lint run without a backend. An APK built
+// with them talks to a project that does not exist: every call fails, and the 401s on the token
+// refresh wipe the pairing on the next launch. So no APK may be built or installed with them.
+val backendIsPlaceholder = backendSetting("supabase.url").contains("your-project") ||
+    backendSetting("supabase.anonKey") == "your-anon-key"
+
+val apkTask = Regex("(assemble|install|bundle)(Debug|Release)?")
+tasks.configureEach {
+    if (apkTask.matches(name)) {
+        val placeholder = backendIsPlaceholder // a plain value: the configuration cache cannot hold the script
+        doFirst {
+            check(!placeholder) {
+                "supabase.url / supabase.anonKey siguen con los valores de ejemplo: ponlos en local.properties."
+            }
+        }
+    }
+}
+
 android {
     namespace = "com.ecoruta.dispositivo"
     compileSdk = 36
