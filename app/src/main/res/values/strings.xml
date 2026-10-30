@@ -1,49 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="es">
     <string name="app_name">EcoRuta Dispositivo</string>
+    <string name="brand_name" translatable="false">EcoRuta</string>
 
     <!-- Foreground service notification -->
     <string name="notification_channel_name">Transmisión de ruta</string>
     <string name="notification_title">EcoRuta en servicio</string>
     <string name="notification_text">Equipo activo y reportando</string>
 
+    <!-- Theme selector -->
+    <string name="theme_selector">Tema: %1$s. Cambiar</string>
+    <string name="theme_system">Igual que el teléfono</string>
+    <string name="theme_auto">Automático (día y noche)</string>
+    <string name="theme_light">Claro</string>
+    <string name="theme_dark">Oscuro</string>
+
+    <!-- Relative time -->
+    <string name="ago_seconds">hace %1$d s</string>
+    <string name="ago_minutes">hace %1$d min</string>
+    <string name="ago_hours">hace %1$d h</string>
+
     <!-- Location permission -->
-    <string name="permission_title">Se necesita la ubicación</string>
+    <string name="permission_title_1">Se necesita</string>
+    <string name="permission_title_2">la ubicación</string>
     <string name="permission_text">EcoRuta transmite la posición de la unidad. Concede el permiso de ubicación precisa para continuar.</string>
     <string name="permission_request">Conceder permiso</string>
     <string name="permission_open_settings">Abrir ajustes</string>
 
     <!-- Pairing -->
-    <string name="pairing_title">Vincular equipo</string>
+    <string name="pairing_title_1">Vincula</string>
+    <string name="pairing_title_2">este equipo</string>
+    <string name="pairing_text">Escribe el código de 5 caracteres que aparece en el panel de administración, en Unidades → Vincular.</string>
     <string name="pairing_code_label">Código de vinculación</string>
     <string name="pairing_submit">Vincular</string>
+    <string name="pairing_session_ended">La vinculación anterior de este equipo terminó. Pide un código nuevo al administrador.</string>
 
     <!-- Idle -->
     <string name="idle_status">En espera</string>
+    <string name="idle_title_1">Listo para</string>
+    <string name="idle_title_2">salir a ruta</string>
+    <string name="idle_route">Ruta</string>
+    <string name="idle_unit">Unidad</string>
     <string name="idle_start_trip">Iniciar recorrido</string>
-    <string name="idle_pending_close">El cierre del recorrido anterior se enviará al volver la conexión.</string>
+    <string name="idle_pending_close">El cierre del recorrido anterior se enviará al volver la conexión. Para iniciar otro hace falta conexión.</string>
+    <string name="idle_location_off">La ubicación del teléfono está apagada. Actívala antes de salir.</string>
 
-    <!-- Trip -->
-    <string name="trip_transmitting">Transmitiendo</string>
-    <string name="trip_gps">GPS: %1$s</string>
-    <string name="trip_online">Conexión: en línea</string>
-    <string name="trip_offline">Conexión: sin red</string>
-    <string name="trip_battery">Batería: %1$s</string>
-    <string name="trip_last_sent">Último envío: %1$s</string>
-    <string name="trip_pending">Posiciones pendientes: %1$d</string>
+    <!-- Readiness and trip tiles -->
+    <string name="tile_connection">Conexión</string>
+    <string name="tile_gps">GPS</string>
+    <string name="tile_power">Alimentación</string>
+    <string name="tile_uploads">Envíos</string>
+    <string name="value_online">En línea</string>
+    <string name="value_offline">Sin red</string>
+    <string name="value_location_off">Apagada</string>
+    <string name="value_gps_good">Buena</string>
+    <string name="value_gps_weak">Débil</string>
+    <string name="value_gps_none">Sin señal</string>
+    <string name="value_charging">Cargando</string>
+    <string name="value_not_charging">Sin cargar</string>
+    <string name="value_battery_percent">Batería %1$d %%</string>
+    <string name="value_battery_unknown">Batería desconocida</string>
+    <string name="value_up_to_date">Al día</string>
+    <string name="value_queued">%1$d en cola</string>
+    <string name="value_queued_detail">Se enviarán al volver la red</string>
+
+    <!-- Trip headline -->
+    <string name="headline_transmitting">Transmitiendo</string>
+    <string name="headline_offline">Sin red</string>
+    <string name="headline_weak_gps">Señal GPS débil</string>
+    <string name="headline_searching_gps">Buscando GPS</string>
+    <string name="headline_location_off">Ubicación apagada</string>
+    <string name="headline_last_sent">Último envío %1$s</string>
+    <string name="headline_waiting_first">Esperando el primer envío</string>
+    <string name="headline_offline_detail">Guardando posiciones: se enviarán al volver la red</string>
+    <string name="headline_weak_detail">Se envían, pero no activan avisos de parada</string>
+    <string name="headline_searching_detail">Sin lectura del GPS. Si sigue así, revisa dónde está el equipo.</string>
+    <string name="headline_location_off_detail">Actívala en los ajustes del teléfono para transmitir</string>
+
+    <!-- Trip actions -->
     <string name="trip_report_incident">Reportar incidencia</string>
     <string name="trip_finish">Finalizar recorrido</string>
-    <string name="gps_no_signal">sin señal</string>
-    <string name="gps_weak">señal débil</string>
-    <string name="gps_good">buena</string>
+    <string name="trip_incident_sent">Incidencia enviada</string>
+    <string name="finish_dialog_title">¿Finalizar recorrido?</string>
+    <string name="finish_dialog_text">El equipo dejará de enviar la posición de la unidad. Si no hay conexión, el cierre se envía después con la hora de este momento.</string>
+    <string name="finish_dialog_confirm">Sí, finalizar</string>
+    <string name="finish_dialog_back">Volver</string>
 
     <!-- Incident -->
-    <string name="incident_title">Reportar incidencia</string>
+    <string name="incident_title_1">Reportar</string>
+    <string name="incident_title_2">incidencia</string>
+    <string name="incident_text">Elige qué está pasando en la ruta.</string>
     <string name="incident_road_closed">Calle cerrada</string>
     <string name="incident_mechanical_failure">Falla mecánica</string>
     <string name="incident_detour">Desvío</string>
     <string name="incident_congestion">Congestión</string>
     <string name="incident_description_label">Observación (opcional)</string>
+    <string name="incident_description_hint">Solo con el vehículo detenido</string>
     <string name="incident_send">Enviar</string>
     <string name="incident_cancel">Cancelar</string>
 
@@ -57,6 +109,6 @@
     <string name="error_not_paired">El equipo no está vinculado.</string>
     <string name="error_no_active_trip">No hay un recorrido activo.</string>
     <string name="error_no_route_assigned">Esta unidad no tiene una ruta asignada.</string>
-    <string name="error_location_unavailable">No hay posición GPS disponible todavía.</string>
+    <string name="error_location_unavailable">No hay posición GPS reciente. Espera a que el GPS tenga señal.</string>
     <string name="error_unexpected">Ocurrió un error inesperado.</string>
 </resources>

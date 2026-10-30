@@ -15,10 +15,12 @@ import com.ecoruta.dispositivo.data.repository.DeviceStatusRepositoryImpl
 import com.ecoruta.dispositivo.data.repository.IncidentRepositoryImpl
 import com.ecoruta.dispositivo.data.repository.ParametersRepositoryImpl
 import com.ecoruta.dispositivo.data.repository.SessionRepositoryImpl
+import com.ecoruta.dispositivo.data.repository.SettingsRepositoryImpl
 import com.ecoruta.dispositivo.data.repository.TelemetryRepositoryImpl
 import com.ecoruta.dispositivo.data.repository.TripRepositoryImpl
 import com.ecoruta.dispositivo.data.system.AndroidBatteryStatusSource
 import com.ecoruta.dispositivo.data.system.AndroidConnectivityObserver
+import com.ecoruta.dispositivo.data.system.AndroidLocationSettingsObserver
 import com.ecoruta.dispositivo.data.system.FusedLocationSource
 import com.ecoruta.dispositivo.data.system.InMemoryTelemetryStatusStore
 import com.ecoruta.dispositivo.domain.model.TransmissionPolicy
@@ -26,10 +28,12 @@ import com.ecoruta.dispositivo.domain.repository.DeviceStatusRepository
 import com.ecoruta.dispositivo.domain.repository.IncidentRepository
 import com.ecoruta.dispositivo.domain.repository.ParametersRepository
 import com.ecoruta.dispositivo.domain.repository.SessionRepository
+import com.ecoruta.dispositivo.domain.repository.SettingsRepository
 import com.ecoruta.dispositivo.domain.repository.TelemetryRepository
 import com.ecoruta.dispositivo.domain.repository.TripRepository
 import com.ecoruta.dispositivo.domain.system.BatteryStatusSource
 import com.ecoruta.dispositivo.domain.system.ConnectivityObserver
+import com.ecoruta.dispositivo.domain.system.LocationSettingsObserver
 import com.ecoruta.dispositivo.domain.system.LocationSource
 import com.ecoruta.dispositivo.domain.system.SyncScheduler
 import com.ecoruta.dispositivo.domain.system.TelemetryController
@@ -38,21 +42,25 @@ import com.ecoruta.dispositivo.domain.usecase.CaptureTelemetryUseCase
 import com.ecoruta.dispositivo.domain.usecase.FinishTripUseCase
 import com.ecoruta.dispositivo.domain.usecase.ObserveDeviceStateUseCase
 import com.ecoruta.dispositivo.domain.usecase.ObservePendingTripCloseUseCase
+import com.ecoruta.dispositivo.domain.usecase.ObserveReadinessUseCase
+import com.ecoruta.dispositivo.domain.usecase.ObserveThemeModeUseCase
 import com.ecoruta.dispositivo.domain.usecase.ObserveTripStatusUseCase
 import com.ecoruta.dispositivo.domain.usecase.PairDeviceUseCase
 import com.ecoruta.dispositivo.domain.usecase.ReportIncidentUseCase
 import com.ecoruta.dispositivo.domain.usecase.ResumeTelemetryUseCase
 import com.ecoruta.dispositivo.domain.usecase.RunTelemetrySessionUseCase
 import com.ecoruta.dispositivo.domain.usecase.SendHeartbeatUseCase
+import com.ecoruta.dispositivo.domain.usecase.SetThemeModeUseCase
 import com.ecoruta.dispositivo.domain.usecase.StartTripUseCase
 import com.ecoruta.dispositivo.domain.usecase.SyncPendingDataUseCase
+import com.ecoruta.dispositivo.domain.usecase.WasPairedBeforeUseCase
 import com.ecoruta.dispositivo.service.ForegroundTelemetryController
 import com.ecoruta.dispositivo.service.KioskController
 import com.ecoruta.dispositivo.work.WorkManagerSyncScheduler
+import java.time.Clock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import java.time.Clock
 
 /**
  * Composition root. Owns every long-lived object and wires the layers together by hand.
@@ -97,6 +105,9 @@ class AppContainer(context: Context) {
     private val locationSource: LocationSource by lazy { FusedLocationSource(appContext) }
     private val batterySource: BatteryStatusSource by lazy { AndroidBatteryStatusSource(appContext) }
     private val connectivity: ConnectivityObserver by lazy { AndroidConnectivityObserver(appContext, appScope) }
+    private val locationSettings: LocationSettingsObserver by lazy {
+        AndroidLocationSettingsObserver(appContext, appScope)
+    }
     private val statusStore: TelemetryStatusStore = InMemoryTelemetryStatusStore()
     val syncScheduler: SyncScheduler by lazy { WorkManagerSyncScheduler(appContext) }
     val telemetryController: TelemetryController by lazy { ForegroundTelemetryController(appContext) }
@@ -122,6 +133,7 @@ class AppContainer(context: Context) {
         )
     }
     private val deviceStatusRepository: DeviceStatusRepository by lazy { DeviceStatusRepositoryImpl(remote.restApi) }
+    private val settingsRepository: SettingsRepository by lazy { SettingsRepositoryImpl(devicePreferences) }
     private val incidentRepository: IncidentRepository by lazy {
         IncidentRepositoryImpl(remote.restApi, unitRoutes)
     }
@@ -146,8 +158,20 @@ class AppContainer(context: Context) {
     val resumeTelemetry by lazy { ResumeTelemetryUseCase(sessionRepository, telemetryController) }
     val observeDeviceState by lazy { ObserveDeviceStateUseCase(sessionRepository, tripRepository) }
     val observePendingTripClose by lazy { ObservePendingTripCloseUseCase(tripRepository) }
+    val observeReadiness by lazy { ObserveReadinessUseCase(connectivity, locationSettings) }
+    val observeThemeMode by lazy { ObserveThemeModeUseCase(settingsRepository) }
+    val setThemeMode by lazy { SetThemeModeUseCase(settingsRepository) }
+    val wasPairedBefore by lazy { WasPairedBeforeUseCase(sessionRepository) }
     val observeTripStatus by lazy {
-        ObserveTripStatusUseCase(statusStore, telemetryRepository, connectivity, batterySource, policy, clock)
+        ObserveTripStatusUseCase(
+            statusStore = statusStore,
+            telemetry = telemetryRepository,
+            connectivity = connectivity,
+            locationSettings = locationSettings,
+            battery = batterySource,
+            policy = policy,
+            clock = clock,
+        )
     }
     private val sendHeartbeat by lazy {
         SendHeartbeatUseCase(sessionRepository, batterySource, deviceStatusRepository)

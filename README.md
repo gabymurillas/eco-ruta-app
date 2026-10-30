@@ -4,8 +4,7 @@ App Android nativa (Kotlin + Jetpack Compose) que corre en un teléfono dedicado
 transmite su posición mientras la ruta está en servicio. Ver la especificación funcional en
 `EcoRuta_App_Dispositivo_de_Ruta.pdf`.
 
-> Estado: **base de arquitectura**. El diseño UI/UX está pendiente; las pantallas actuales son
-> andamiaje funcional sin estilo.
+> Estado: **funcional y con su interfaz definitiva**. Falta la lectura por QR (ver Pendiente).
 
 ## Requisitos
 
@@ -38,6 +37,8 @@ El dominio es Kotlin puro (sin `android.*`), por eso se prueba en JVM sin emulad
 
 ```
 presentation/   Compose + ViewModel (StateFlow). Una carpeta por pantalla.
+  components/   Piezas compartidas: cristal, botones, avisos, andamio de pantalla, selector de tema.
+  theme/        Sistema de diseño EcoRuta (colores, Merriweather / Source Sans 3).
   navigation/   Rutas tipadas; la pantalla la decide el DeviceState, no los botones.
 domain/
   model/        Modelos y reglas puras (TransmissionPolicy: 5 s en movimiento / 30 s detenido).
@@ -52,6 +53,7 @@ data/
 service/        Foreground service (location), notificación, modo quiosco.
 work/           SyncWorker (reintenta la cola pendiente cuando vuelve la red).
 receiver/       Arranque automático y administrador de dispositivo.
+platform/       Permisos de Android que comparten el servicio y la interfaz.
 di/             AppContainer: raíz de composición manual.
 ```
 
@@ -73,6 +75,34 @@ di/             AppContainer: raíz de composición manual.
 8. Si el GPS o un latido fallan, se reintenta (GPS a los 10 s); ninguno detiene al otro ni al servicio.
 9. Si el servidor rechaza el token de renovación, la sesión se borra y el equipo vuelve a la pantalla de
    vinculación. Revincular a la misma unidad conserva su viaje y su cola; a otra unidad, los descarta.
+
+## Interfaz
+
+Sigue el sistema de diseño de EcoRuta (CLAUDE.md del backend): fondo crema, terracota solo para la
+identidad y la acción principal, verde / ámbar / rojo solo para estados, titulares en Merriweather y
+texto en Source Sans 3. Las fuentes van dentro del APK (licencia OFL en `assets/licenses/`): un equipo
+puede arrancar por primera vez sin red. Tiene tema oscuro con los mismos tonos.
+
+- **Pensada para el asiento del conductor:** controles de 72 dp o más, etiquetas de 16 sp, valores de
+  32 sp. En "En viaje" un banner sólido resume el peor estado (ubicación apagada > sin GPS > sin red >
+  GPS débil > transmitiendo); color, punto y texto dicen lo mismo, nunca solo el color.
+- **Cristal ("liquid glass"), excepción consciente al sistema**, que pide superficies planas: lo
+  decidió la autora para esta app. Es translúcido con borde y brillo, sin desenfoque real (solo existe
+  desde Android 12 y cuesta fotogramas en teléfonos baratos). Los estados críticos nunca van sobre
+  cristal: usan relleno sólido para mantener el contraste al sol.
+- **Tema:** selector en la esquina superior derecha: igual que el teléfono (por defecto), automático
+  por hora (oscuro de 18:30 a 06:00, sin red ni ubicación), claro u oscuro.
+
+**Catálogo de diseño (solo debug).** Cada pantalla en cada estado, con datos de ejemplo, sin vincular
+el equipo; sirve para revisar el diseño y para las capturas de la tesis:
+
+```bash
+adb shell am start -f 0x10008000 -n com.ecoruta.dispositivo/.catalog.DesignCatalogActivity --es screen trip_offline --es theme dark
+```
+
+Pantallas: `permission`, `pairing`, `pairing_error`, `idle`, `idle_offline`, `trip`, `trip_offline`,
+`trip_nogps`, `trip_sent`, `incident`. Sin `-S`: en Android 15+ forzar la detención hace que el sistema
+envíe `BOOT_COMPLETED` al reabrir, y `BootReceiver` abre la app real encima.
 
 ## Modo quiosco (una vez por equipo)
 
@@ -106,8 +136,9 @@ La app usa **solo** la clave publicable (`apikey`) y el token de sesión del dis
 
 ## Pendiente
 
-- Diseño UI/UX (pantallas grandes, legibles desde el puesto de conducción).
-- Lectura de QR en la vinculación (CameraX + ML Kit) — hoy solo código alfanumérico.
+- Lectura de QR en la vinculación (CameraX + ML Kit). **Bloqueado por el backend:** el panel admin
+  hoy solo muestra el código de 5 caracteres, no genera QR; hace falta definir su contenido en
+  `docs/contrato-vinculacion.md` y que la web lo dibuje.
 - Fallback a `LocationManager` cuando no haya Google Play Services (limitación §6 del PDF).
 - Firma de release y `applicationId` definitivo.
 - Configurar `supabase.url` y `supabase.anonKey` (clave publicable) en `local.properties`.

@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.ecoruta.dispositivo.domain.model.DeviceSession
+import com.ecoruta.dispositivo.domain.model.ThemeMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -23,7 +24,10 @@ data class PendingTripClose(
     val endedAt: Instant,
 )
 
-/** Durable device state: pairing identity, credentials, the trip in progress and cached parameters. */
+/**
+ * Durable device state: pairing identity, credentials, the trip in progress, cached parameters and
+ * the theme chosen on screen.
+ */
 class DevicePreferences(
     private val store: DataStore<Preferences>,
     private val cipher: TokenCipher,
@@ -34,6 +38,15 @@ class DevicePreferences(
     val activeTripId: Flow<String?> = store.data.map { it[ACTIVE_TRIP_ID] }.distinctUntilChanged()
 
     val pendingTripClose: Flow<PendingTripClose?> = store.data.map { it.toPendingClose() }.distinctUntilChanged()
+
+    /** An unknown stored value (from a later version) falls back to following the phone. */
+    val themeMode: Flow<ThemeMode> = store.data
+        .map { prefs -> ThemeMode.entries.firstOrNull { it.name == prefs[THEME_MODE] } ?: ThemeMode.SYSTEM }
+        .distinctUntilChanged()
+
+    suspend fun setThemeMode(mode: ThemeMode) {
+        store.edit { it[THEME_MODE] = mode.name }
+    }
 
     /** Unit of the last pairing, kept even after its session was revoked. */
     suspend fun lastPairedUnitId(): String? = store.data.first()[UNIT_ID]
@@ -148,5 +161,6 @@ class DevicePreferences(
         val PENDING_CLOSE_TRIP_ID = stringPreferencesKey("pending_close_trip_id")
         val PENDING_CLOSE_AT_MS = longPreferencesKey("pending_close_at_ms")
         val PARAMETERS_JSON = stringPreferencesKey("parameters_json")
+        val THEME_MODE = stringPreferencesKey("theme_mode")
     }
 }

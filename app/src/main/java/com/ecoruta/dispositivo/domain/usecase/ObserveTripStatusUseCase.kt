@@ -6,6 +6,7 @@ import com.ecoruta.dispositivo.domain.model.TripStatus
 import com.ecoruta.dispositivo.domain.repository.TelemetryRepository
 import com.ecoruta.dispositivo.domain.system.BatteryStatusSource
 import com.ecoruta.dispositivo.domain.system.ConnectivityObserver
+import com.ecoruta.dispositivo.domain.system.LocationSettingsObserver
 import com.ecoruta.dispositivo.domain.system.TelemetryStatusStore
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -20,6 +21,7 @@ class ObserveTripStatusUseCase(
     private val statusStore: TelemetryStatusStore,
     private val telemetry: TelemetryRepository,
     private val connectivity: ConnectivityObserver,
+    private val locationSettings: LocationSettingsObserver,
     private val battery: BatteryStatusSource,
     private val policy: TransmissionPolicy,
     private val clock: Clock,
@@ -38,7 +40,7 @@ class ObserveTripStatusUseCase(
             lastSentAt = lastSentAt,
             pendingPositions = pending,
         )
-    }
+    }.combine(locationSettings.isLocationEnabled) { status, enabled -> status.copy(isLocationEnabled = enabled) }
 
     /** Re-evaluated on every tick so a fix going stale is noticed even when nothing else changes. */
     private fun gpsStatus(): Flow<GpsStatus> =

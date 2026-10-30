@@ -1,10 +1,9 @@
 package com.ecoruta.dispositivo.presentation.idle
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,6 +16,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ecoruta.dispositivo.R
 import com.ecoruta.dispositivo.presentation.common.LocalViewModelFactory
+import com.ecoruta.dispositivo.presentation.components.HighlightTitle
+import com.ecoruta.dispositivo.presentation.components.InfoTile
+import com.ecoruta.dispositivo.presentation.components.NoticeBanner
+import com.ecoruta.dispositivo.presentation.components.PrimaryButton
+import com.ecoruta.dispositivo.presentation.components.RouteIllustration
+import com.ecoruta.dispositivo.presentation.components.ScreenScaffold
+import com.ecoruta.dispositivo.presentation.components.StatusDot
+import com.ecoruta.dispositivo.presentation.components.Tone
+import com.ecoruta.dispositivo.presentation.theme.ecoColors
 
 @Composable
 fun IdleRoute(viewModel: IdleViewModel = viewModel(factory = LocalViewModelFactory.current)) {
@@ -26,17 +34,48 @@ fun IdleRoute(viewModel: IdleViewModel = viewModel(factory = LocalViewModelFacto
 
 @Composable
 fun IdleScreen(state: IdleUiState, onStartTrip: () -> Unit) {
-    Column(
-        modifier = Modifier.fillMaxSize().padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.CenterVertically),
+    val colors = ecoColors
+    ScreenScaffold(
+        bottomBar = {
+            PrimaryButton(
+                stringResource(R.string.idle_start_trip),
+                onStartTrip,
+                Modifier.weight(1f),
+                loading = state.isStarting,
+                height = 84.dp,
+            )
+        },
     ) {
-        Text(state.routeName, style = MaterialTheme.typography.headlineMedium)
-        Text(state.unitName, style = MaterialTheme.typography.titleMedium)
-        Text(stringResource(R.string.idle_status))
-        if (state.hasPendingClose) Text(stringResource(R.string.idle_pending_close))
-        state.errorRes?.let { Text(stringResource(it), color = MaterialTheme.colorScheme.error) }
-        Button(onClick = onStartTrip, enabled = !state.isStarting) {
-            Text(stringResource(R.string.idle_start_trip))
+        // Neutral, not amber: waiting is the normal state, not something to look at.
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            StatusDot(colors.inkMuted)
+            Text(stringResource(R.string.idle_status), color = colors.inkMuted, style = MaterialTheme.typography.labelMedium)
         }
+        HighlightTitle(stringResource(R.string.idle_title_1), stringResource(R.string.idle_title_2))
+        // Notices outrank decoration: with any of them showing, the route drawing gives up its room
+        // so nothing the driver must read ends up below the fold.
+        val hasNotices = !state.readiness.isLocationEnabled || state.hasPendingClose || state.errorRes != null
+        if (!hasNotices) RouteIllustration(Modifier.fillMaxWidth().height(130.dp))
+        InfoTile(label = stringResource(R.string.idle_route), value = state.routeName, modifier = Modifier.fillMaxWidth())
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            InfoTile(stringResource(R.string.idle_unit), state.unitName, Modifier.weight(1f))
+            ReadinessTile(state, Modifier.weight(1f))
+        }
+        if (!state.readiness.isLocationEnabled) NoticeBanner(stringResource(R.string.idle_location_off), Tone.ERROR)
+        if (state.hasPendingClose) NoticeBanner(stringResource(R.string.idle_pending_close), Tone.WARNING)
+        state.errorRes?.let { NoticeBanner(stringResource(it), Tone.ERROR) }
     }
+}
+
+@Composable
+private fun ReadinessTile(state: IdleUiState, modifier: Modifier) {
+    val colors = ecoColors
+    val online = state.readiness.isOnline
+    InfoTile(
+        label = stringResource(R.string.tile_connection),
+        value = stringResource(if (online) R.string.value_online else R.string.value_offline),
+        modifier = modifier,
+        valueColor = if (online) colors.ink else colors.warningInk,
+        indicator = { StatusDot(if (online) colors.success else colors.warning) },
+    )
 }

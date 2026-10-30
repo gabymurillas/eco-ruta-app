@@ -7,6 +7,8 @@ import com.ecoruta.dispositivo.core.onFailure
 import com.ecoruta.dispositivo.domain.model.DeviceState
 import com.ecoruta.dispositivo.domain.usecase.ObserveDeviceStateUseCase
 import com.ecoruta.dispositivo.domain.usecase.ObservePendingTripCloseUseCase
+import com.ecoruta.dispositivo.domain.usecase.ObserveReadinessUseCase
+import com.ecoruta.dispositivo.domain.usecase.Readiness
 import com.ecoruta.dispositivo.domain.usecase.StartTripUseCase
 import com.ecoruta.dispositivo.presentation.common.toMessageRes
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,6 +21,8 @@ import kotlinx.coroutines.launch
 data class IdleUiState(
     val unitName: String = "",
     val routeName: String = "",
+    /** Whether the unit could transmit right now, so the driver does not set off blind. */
+    val readiness: Readiness = Readiness(isOnline = true, isLocationEnabled = true),
     /** The previous trip was finished offline and its close is still waiting to be sent. */
     val hasPendingClose: Boolean = false,
     val isStarting: Boolean = false,
@@ -28,6 +32,7 @@ data class IdleUiState(
 class IdleViewModel(
     observeDeviceState: ObserveDeviceStateUseCase,
     observePendingTripClose: ObservePendingTripCloseUseCase,
+    observeReadiness: ObserveReadinessUseCase,
     private val startTrip: StartTripUseCase,
 ) : ViewModel() {
 
@@ -44,6 +49,9 @@ class IdleViewModel(
         }
         viewModelScope.launch {
             observePendingTripClose().collect { pending -> _uiState.update { it.copy(hasPendingClose = pending) } }
+        }
+        viewModelScope.launch {
+            observeReadiness().collect { readiness -> _uiState.update { it.copy(readiness = readiness) } }
         }
     }
 

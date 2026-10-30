@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Debug builds only: the design catalog never ships in a release APK. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <activity
+            android:name=".catalog.DesignCatalogActivity"
+            android:exported="true"
+            android:label="EcoRuta · catálogo"
+            android:taskAffinity="com.ecoruta.dispositivo.catalog" />
+    </application>
+</manifest>

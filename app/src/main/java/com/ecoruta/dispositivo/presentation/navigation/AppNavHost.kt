@@ -2,7 +2,9 @@ package com.ecoruta.dispositivo.presentation.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -26,11 +28,22 @@ fun AppNavHost(deviceState: DeviceState) {
     NavHost(navController = navController, startDestination = startDestination) {
         composable<Route.Pairing> { PairingRoute() }
         composable<Route.Idle> { IdleRoute() }
-        composable<Route.Trip> {
-            TripRoute(onReportIncident = { navController.navigate(Route.Incident) })
+        composable<Route.Trip> { entry ->
+            // The incident screen leaves this flag behind so the trip screen can confirm the send.
+            val incidentSent by entry.savedStateHandle.getStateFlow(INCIDENT_SENT, false).collectAsStateWithLifecycle()
+            TripRoute(
+                onReportIncident = { navController.navigate(Route.Incident) },
+                showIncidentSent = incidentSent,
+                onIncidentSentShown = { entry.savedStateHandle[INCIDENT_SENT] = false },
+            )
         }
         composable<Route.Incident> {
-            IncidentRoute(onDone = { navController.popBackStack() })
+            IncidentRoute(
+                onDone = { sent ->
+                    if (sent) navController.previousBackStackEntry?.savedStateHandle?.set(INCIDENT_SENT, true)
+                    navController.popBackStack()
+                },
+            )
         }
     }
 
@@ -46,3 +59,5 @@ fun AppNavHost(deviceState: DeviceState) {
         }
     }
 }
+
+private const val INCIDENT_SENT = "incident_sent"

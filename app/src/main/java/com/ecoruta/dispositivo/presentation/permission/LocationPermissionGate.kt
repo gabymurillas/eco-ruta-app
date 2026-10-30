@@ -5,13 +5,7 @@ import android.content.Intent
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -19,15 +13,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.ecoruta.dispositivo.R
 import com.ecoruta.dispositivo.platform.LocationPermission
+import com.ecoruta.dispositivo.presentation.components.GlassButton
+import com.ecoruta.dispositivo.presentation.components.HighlightTitle
+import com.ecoruta.dispositivo.presentation.components.PrimaryButton
+import com.ecoruta.dispositivo.presentation.components.ScreenScaffold
+import com.ecoruta.dispositivo.presentation.theme.ecoColors
 
 /**
  * Shows [content] only once precise location is granted, and reports it through [onGranted].
@@ -66,15 +63,15 @@ fun LocationPermissionGate(onGranted: () -> Unit, content: @Composable () -> Uni
 
 @Composable
 fun LocationPermissionScreen(onRequest: () -> Unit, onOpenSettings: () -> Unit) {
-    Column(
-        modifier = Modifier.fillMaxSize().padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.CenterVertically),
+    ScreenScaffold(
+        bottomBar = {
+            // After "don't ask again" the system dialog no longer shows; settings is the only way back.
+            GlassButton(stringResource(R.string.permission_open_settings), onOpenSettings, Modifier.weight(1f))
+            PrimaryButton(stringResource(R.string.permission_request), onRequest, Modifier.weight(1f))
+        },
     ) {
-        Text(stringResource(R.string.permission_title), style = MaterialTheme.typography.headlineMedium)
-        Text(stringResource(R.string.permission_text))
-        Button(onClick = onRequest) { Text(stringResource(R.string.permission_request)) }
-        // After "don't ask again" the system dialog no longer shows; settings is the only way back.
-        OutlinedButton(onClick = onOpenSettings) { Text(stringResource(R.string.permission_open_settings)) }
+        HighlightTitle(stringResource(R.string.permission_title_1), stringResource(R.string.permission_title_2))
+        Text(stringResource(R.string.permission_text), color = ecoColors.inkMuted, style = MaterialTheme.typography.bodyLarge)
     }
 }
 
