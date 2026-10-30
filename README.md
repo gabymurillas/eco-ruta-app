@@ -158,7 +158,7 @@ adb shell am start -f 0x10008000 -n com.ecoruta.dispositivo/.catalog.DesignCatal
 ```
 
 Pantallas: `welcome`, `permission`, `pairing`, `pairing_error`, `idle`, `idle_offline`, `trip`, `trip_offline`,
-`trip_nogps`, `trip_sent`, `incident`. Sin `-S`: en Android 15+ forzar la detención hace que el sistema
+`trip_nogps`, `incident`. Sin `-S`: en Android 15+ forzar la detención hace que el sistema
 envíe `BOOT_COMPLETED` al reabrir, y `BootReceiver` abre la app real encima.
 
 ## Modo quiosco (una vez por equipo)

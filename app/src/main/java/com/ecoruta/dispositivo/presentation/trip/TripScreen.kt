@@ -3,7 +3,6 @@ package com.ecoruta.dispositivo.presentation.trip
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -12,7 +11,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,7 +34,6 @@ import com.ecoruta.dispositivo.presentation.common.LocalViewModelFactory
 import com.ecoruta.dispositivo.presentation.common.agoText
 import com.ecoruta.dispositivo.presentation.common.rememberNow
 import com.ecoruta.dispositivo.presentation.components.GlassButton
-import com.ecoruta.dispositivo.presentation.components.GlassPanel
 import com.ecoruta.dispositivo.presentation.components.InfoTile
 import com.ecoruta.dispositivo.presentation.components.NoticeBanner
 import com.ecoruta.dispositivo.presentation.components.PrimaryButton
@@ -46,18 +43,14 @@ import com.ecoruta.dispositivo.presentation.components.Tone
 import com.ecoruta.dispositivo.presentation.theme.EcoColors
 import com.ecoruta.dispositivo.presentation.theme.Merriweather
 import com.ecoruta.dispositivo.presentation.theme.ecoColors
-import kotlinx.coroutines.delay
-import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun TripRoute(
     onReportIncident: () -> Unit,
-    showIncidentSent: Boolean,
-    onIncidentSentShown: () -> Unit,
     viewModel: TripViewModel = viewModel(factory = LocalViewModelFactory.current),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    TripScreen(state, viewModel::onFinishTrip, onReportIncident, showIncidentSent, onIncidentSentShown)
+    TripScreen(state, viewModel::onFinishTrip, onReportIncident)
 }
 
 @Composable
@@ -65,8 +58,6 @@ fun TripScreen(
     state: TripUiState,
     onFinishTrip: () -> Unit,
     onReportIncident: () -> Unit,
-    showIncidentSent: Boolean = false,
-    onIncidentSentShown: () -> Unit = {},
 ) {
     var confirmFinish by remember { mutableStateOf(false) }
     val status = state.status
@@ -84,7 +75,6 @@ fun TripScreen(
         },
     ) {
         StatusBanner(status)
-        if (showIncidentSent) IncidentSentNotice(onIncidentSentShown)
         // A common height keeps each row even; the values stay large enough to read from the seat.
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             GpsTile(status, Modifier.weight(1f).heightIn(min = TILE_HEIGHT))
@@ -205,21 +195,6 @@ private fun UploadsTile(status: TripStatus, modifier: Modifier) {
     )
 }
 
-/** Confirms the report went out, then gets out of the way. */
-@Composable
-private fun IncidentSentNotice(onShown: () -> Unit) {
-    LaunchedEffect(Unit) {
-        delay(NOTICE_DURATION)
-        onShown()
-    }
-    GlassPanel(Modifier.fillMaxWidth(), strong = true, contentPadding = PaddingValues(16.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            StatusDot(ecoColors.success)
-            Text(stringResource(R.string.trip_incident_sent), color = ecoColors.ink, style = MaterialTheme.typography.titleMedium)
-        }
-    }
-}
-
 /** Big, stacked buttons: this is answered from the seat, and the confirm is not a "good" green. */
 @Composable
 private fun FinishDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
@@ -254,5 +229,4 @@ private fun TripHeadline.titleRes(): Int = when (this) {
     TripHeadline.LOCATION_OFF -> R.string.headline_location_off
 }
 
-private val NOTICE_DURATION = 4.seconds
 private val TILE_HEIGHT = 112.dp

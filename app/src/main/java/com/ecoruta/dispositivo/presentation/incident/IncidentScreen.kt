@@ -1,5 +1,6 @@
 package com.ecoruta.dispositivo.presentation.incident
 
+import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -32,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -53,15 +55,21 @@ import com.ecoruta.dispositivo.presentation.theme.ecoColors
 
 @Composable
 fun IncidentRoute(
-    onDone: (sent: Boolean) -> Unit,
+    onDone: () -> Unit,
     viewModel: IncidentViewModel = viewModel(factory = LocalViewModelFactory.current),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
+    val context = LocalContext.current
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
             when (event) {
-                IncidentEvent.Sent -> onDone(true)
+                IncidentEvent.Sent -> {
+                    // A system toast, not a card on the trip screen: it is the confirmation Android
+                    // users already know, and it stays readable while the screen changes under it.
+                    Toast.makeText(context, R.string.trip_incident_sent, Toast.LENGTH_LONG).show()
+                    onDone()
+                }
             }
         }
     }
@@ -71,7 +79,7 @@ fun IncidentRoute(
         onTypeSelected = viewModel::onTypeSelected,
         onDescriptionChange = viewModel::onDescriptionChange,
         onSend = viewModel::onSend,
-        onCancel = { onDone(false) },
+        onCancel = onDone,
     )
 }
 

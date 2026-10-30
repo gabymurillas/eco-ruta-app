@@ -35,7 +35,7 @@ import java.time.Instant
  * `adb shell am start -f 0x10008000 -n com.ecoruta.dispositivo/.catalog.DesignCatalogActivity --es screen trip --es theme dark`
  * (0x10008000 = new task + clear task: a fresh catalog in its own task, apart from the real app).
  * Screens: welcome, permission, pairing, pairing_error, idle, idle_offline, trip, trip_offline, trip_nogps,
- * trip_sent, incident. Themes: light, dark.
+ * incident. Themes: light, dark.
  */
 class DesignCatalogActivity : ComponentActivity() {
 
@@ -89,7 +89,6 @@ private fun Sample(screen: String) {
             {},
         )
         "trip_nogps" -> TripScreen(TripUiState(trip.copy(gps = GpsStatus.NO_SIGNAL)), {}, {})
-        "trip_sent" -> TripScreen(TripUiState(trip), {}, {}, showIncidentSent = true)
         "incident" -> IncidentScreen(
             IncidentUiState(selectedType = IncidentType.DETOUR, description = "Obras en la Av. Bolívar"),
             {},
