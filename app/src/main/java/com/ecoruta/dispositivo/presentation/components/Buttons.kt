@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -41,7 +42,8 @@ fun PrimaryButton(
         modifier = modifier
             .heightIn(min = height)
             .clip(PillShape)
-            .background(colors.brandStrong.copy(alpha = if (enabled) 1f else DISABLED_ALPHA))
+            // Faded but opaque: over a photo, a see-through button would let the picture show through.
+            .background(if (enabled) colors.brandStrong else colors.brandStrong.copy(alpha = DISABLED_ALPHA).compositeOver(colors.background))
             .clickable(enabled = active, role = Role.Button, onClick = onClick)
             .padding(horizontal = 20.dp, vertical = 12.dp),
         contentAlignment = Alignment.Center,

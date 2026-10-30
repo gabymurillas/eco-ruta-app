@@ -1,6 +1,9 @@
 package com.ecoruta.dispositivo.presentation.theme
 
 import androidx.compose.material3.Typography
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -24,6 +27,12 @@ val SourceSans = FontFamily(
  * Sized to be read from the driver's seat, at arm's length and at a glance: the status line is the
  * largest thing on screen, values come next, and even labels stay at 16 sp.
  */
+/**
+ * A soft shadow under white text on a photo: it keeps the letters legible where the sky turns
+ * lighter, without a gradient or a box over the picture.
+ */
+val PhotoTextShadow = Shadow(color = Color(0x73000000), offset = Offset(0f, 2f), blurRadius = 10f)
+
 val EcoTypography = Typography(
     displaySmall = TextStyle(fontFamily = Merriweather, fontWeight = FontWeight.Bold, fontSize = 34.sp, lineHeight = 44.sp),
     headlineLarge = TextStyle(fontFamily = Merriweather, fontWeight = FontWeight.Bold, fontSize = 32.sp, lineHeight = 40.sp),

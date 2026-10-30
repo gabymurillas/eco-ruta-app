@@ -1,6 +1,5 @@
 package com.ecoruta.dispositivo.presentation.components
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -51,30 +50,4 @@ private fun hill(center: Offset, start: Float, step: Float, rings: Int, seed: Fl
     }
 }
 
-/**
- * A stylised route with its stops, for the pairing and idle screens. Purely decorative: it is not
- * the unit's real route, so it is kept off the trip screen, where it could pass for a map.
- */
-@Composable
-fun RouteIllustration(modifier: Modifier = Modifier) {
-    val colors = ecoColors
-    Canvas(modifier) {
-        val w = size.width
-        val h = size.height
-        val line = Path().apply {
-            moveTo(-w * 0.05f, h * 0.15f)
-            cubicTo(w * 0.35f, -h * 0.05f, w * 0.75f, h * 0.2f, w * 0.6f, h * 0.55f)
-            cubicTo(w * 0.5f, h * 0.8f, w * 0.8f, h, w * 1.05f, h * 0.9f)
-        }
-        drawPath(line, colors.brand.copy(alpha = 0.7f), style = Stroke(width = 2.5.dp.toPx()))
-        STOPS.forEach { (x, y) ->
-            val center = Offset(w * x, h * y)
-            drawCircle(colors.glassStrong, radius = 13.dp.toPx(), center = center)
-            drawCircle(colors.border, radius = 13.dp.toPx(), center = center, style = Stroke(1.dp.toPx()))
-            drawCircle(colors.ink, radius = 3.dp.toPx(), center = center)
-        }
-    }
-}
-
 private const val SEGMENTS = 72
-private val STOPS = listOf(0.28f to 0.07f, 0.66f to 0.3f, 0.6f to 0.58f, 0.84f to 0.92f)

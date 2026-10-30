@@ -19,12 +19,13 @@ fun InfoTile(
     label: String,
     value: String,
     modifier: Modifier = Modifier,
+    strong: Boolean = false,
     detail: String? = null,
     valueColor: Color = ecoColors.ink,
     indicator: (@Composable () -> Unit)? = null,
 ) {
     val colors = ecoColors
-    GlassPanel(modifier, contentPadding = PaddingValues(16.dp)) {
+    GlassPanel(modifier, strong = strong, contentPadding = PaddingValues(16.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text(label, color = colors.inkMuted, style = MaterialTheme.typography.labelMedium, modifier = Modifier.weight(1f))
             indicator?.invoke()

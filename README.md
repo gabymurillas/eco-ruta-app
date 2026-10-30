@@ -54,7 +54,7 @@ app/src/main/java/com/ecoruta/dispositivo/
 │   ├── repository/         *RepositoryImpl (patrón outbox en TelemetryRepositoryImpl).
 │   └── system/             Adaptadores Android (FusedLocation, BatteryManager, ConnectivityManager…).
 ├── presentation/           Interfaz: Compose + ViewModel (StateFlow).
-│   ├── <pantalla>/         pairing, idle, trip, incident, permission: XxxScreen + XxxViewModel.
+│   ├── <pantalla>/         welcome, pairing, idle, trip, incident, permission: XxxScreen + XxxViewModel.
 │   ├── components/         Piezas compartidas, una por archivo (cristal, botones, avisos, andamio…).
 │   ├── theme/              Sistema de diseño EcoRuta: Color, Type, Theme.
 │   ├── navigation/         Rutas tipadas; la pantalla la decide el DeviceState, no los botones.
@@ -139,6 +139,14 @@ puede arrancar por primera vez sin red. Tiene tema oscuro con los mismos tonos.
   decidió la autora para esta app. Es translúcido con borde y brillo, sin desenfoque real (solo existe
   desde Android 12 y cuesta fotogramas en teléfonos baratos). Los estados críticos nunca van sobre
   cristal: usan relleno sólido para mantener el contraste al sol.
+- **Bienvenida (solo la primera vez):** con `DeviceState.Unpaired(firstTime = true)`, es decir, si el
+  equipo nunca se vinculó. Foto de los Morros a pantalla completa y el texto al pie, en blanco y sin
+  recuadro; el único degradado funde la foto con el fondo oscuro detrás del texto. Se ve igual en
+  ambos temas. "Comenzar" lleva a la vinculación. Si la sesión se revocó, va directo a vinculación
+  con su aviso. Foto en `drawable-nodpi`, JPEG 1080×2400 (~130 KB).
+- **Vinculación sobre la misma foto** (`ScreenScaffold(photo = …)`): título e instrucciones en blanco
+  con una sombra suave, sin recuadro ni degradado; el código justo debajo, en cristal. En oscuro la
+  foto se atenúa un 40 %. La foto no se mueve al abrir el teclado (`adjustResize`): solo el contenido.
 - **Tema:** selector en la esquina superior derecha: igual que el teléfono (por defecto), automático
   por hora (oscuro de 18:30 a 06:00, sin red ni ubicación), claro u oscuro.
 
@@ -149,7 +157,7 @@ el equipo; sirve para revisar el diseño y para las capturas de la tesis:
 adb shell am start -f 0x10008000 -n com.ecoruta.dispositivo/.catalog.DesignCatalogActivity --es screen trip_offline --es theme dark
 ```
 
-Pantallas: `permission`, `pairing`, `pairing_error`, `idle`, `idle_offline`, `trip`, `trip_offline`,
+Pantallas: `welcome`, `permission`, `pairing`, `pairing_error`, `idle`, `idle_offline`, `trip`, `trip_offline`,
 `trip_nogps`, `trip_sent`, `incident`. Sin `-S`: en Android 15+ forzar la detención hace que el sistema
 envíe `BOOT_COMPLETED` al reabrir, y `BootReceiver` abre la app real encima.
 
