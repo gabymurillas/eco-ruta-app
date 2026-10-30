@@ -1,11 +1,13 @@
-package com.ecoruta.dispositivo.domain.model
+package com.ecoruta.dispositivo.domain.policy
 
+import com.ecoruta.dispositivo.domain.model.GpsStatus
+import com.ecoruta.dispositivo.domain.model.LocationFix
 import com.ecoruta.dispositivo.domain.repository.OperationParamsSource
-import java.time.Duration as JavaDuration
 import java.time.Instant
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.toJavaDuration
+import java.time.Duration as JavaDuration
 
 /**
  * Decides how often readings are transmitted and how good the GPS signal is.

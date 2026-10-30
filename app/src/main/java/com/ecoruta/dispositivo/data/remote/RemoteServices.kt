@@ -14,6 +14,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import java.util.concurrent.TimeUnit
 
+/** Backend endpoint and publishable key, from `local.properties`. Never the `service_role` key. */
 data class SupabaseConfig(
     val baseUrl: String,
     val anonKey: String,

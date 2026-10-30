@@ -23,7 +23,7 @@ import com.ecoruta.dispositivo.data.system.AndroidConnectivityObserver
 import com.ecoruta.dispositivo.data.system.AndroidLocationSettingsObserver
 import com.ecoruta.dispositivo.data.system.FusedLocationSource
 import com.ecoruta.dispositivo.data.system.InMemoryTelemetryStatusStore
-import com.ecoruta.dispositivo.domain.model.TransmissionPolicy
+import com.ecoruta.dispositivo.domain.policy.TransmissionPolicy
 import com.ecoruta.dispositivo.domain.repository.DeviceStatusRepository
 import com.ecoruta.dispositivo.domain.repository.IncidentRepository
 import com.ecoruta.dispositivo.domain.repository.ParametersRepository
@@ -54,13 +54,13 @@ import com.ecoruta.dispositivo.domain.usecase.SetThemeModeUseCase
 import com.ecoruta.dispositivo.domain.usecase.StartTripUseCase
 import com.ecoruta.dispositivo.domain.usecase.SyncPendingDataUseCase
 import com.ecoruta.dispositivo.domain.usecase.WasPairedBeforeUseCase
+import com.ecoruta.dispositivo.platform.KioskController
 import com.ecoruta.dispositivo.service.ForegroundTelemetryController
-import com.ecoruta.dispositivo.service.KioskController
 import com.ecoruta.dispositivo.work.WorkManagerSyncScheduler
-import java.time.Clock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import java.time.Clock
 
 /**
  * Composition root. Owns every long-lived object and wires the layers together by hand.

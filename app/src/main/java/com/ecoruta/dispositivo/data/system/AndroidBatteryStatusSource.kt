@@ -12,6 +12,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
+/** Battery level and charging state from the sticky `ACTION_BATTERY_CHANGED` broadcast. */
 class AndroidBatteryStatusSource(private val context: Context) : BatteryStatusSource {
 
     private val filter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)

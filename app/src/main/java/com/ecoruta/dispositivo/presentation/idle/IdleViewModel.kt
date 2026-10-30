@@ -5,10 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ecoruta.dispositivo.core.onFailure
 import com.ecoruta.dispositivo.domain.model.DeviceState
+import com.ecoruta.dispositivo.domain.model.Readiness
 import com.ecoruta.dispositivo.domain.usecase.ObserveDeviceStateUseCase
 import com.ecoruta.dispositivo.domain.usecase.ObservePendingTripCloseUseCase
 import com.ecoruta.dispositivo.domain.usecase.ObserveReadinessUseCase
-import com.ecoruta.dispositivo.domain.usecase.Readiness
 import com.ecoruta.dispositivo.domain.usecase.StartTripUseCase
 import com.ecoruta.dispositivo.presentation.common.toMessageRes
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/** Everything the idle screen shows. */
 data class IdleUiState(
     val unitName: String = "",
     val routeName: String = "",

@@ -23,6 +23,10 @@ import com.ecoruta.dispositivo.presentation.permission.LocationPermissionGate
 import com.ecoruta.dispositivo.presentation.theme.EcoRutaTheme
 import com.ecoruta.dispositivo.presentation.theme.ecoColors
 
+/**
+ * The only activity. Enters kiosk mode when allowed and hosts the Compose tree; which screen
+ * shows is decided by the device state, see [AppNavHost].
+ */
 class MainActivity : ComponentActivity() {
 
     private val container by lazy { (application as EcoRutaApplication).container }

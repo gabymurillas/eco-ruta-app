@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.time.Instant
 
+/** Process-wide and in memory on purpose: it only feeds the screen, and a restart starts it fresh. */
 class InMemoryTelemetryStatusStore : TelemetryStatusStore {
 
     private val _lastFix = MutableStateFlow<LocationFix?>(null)

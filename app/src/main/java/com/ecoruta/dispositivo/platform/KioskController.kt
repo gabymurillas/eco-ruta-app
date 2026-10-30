@@ -1,10 +1,9 @@
-package com.ecoruta.dispositivo.service
+package com.ecoruta.dispositivo.platform
 
 import android.app.Activity
 import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
 import android.content.Context
-import com.ecoruta.dispositivo.platform.LocationPermission
 import com.ecoruta.dispositivo.receiver.KioskAdminReceiver
 
 /** Pins the screen to this app (lock-task mode) when the app has been provisioned as device owner. */

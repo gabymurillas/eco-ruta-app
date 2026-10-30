@@ -4,6 +4,7 @@ import com.ecoruta.dispositivo.core.Outcome
 import com.ecoruta.dispositivo.domain.model.Trip
 import kotlinx.coroutines.flow.Flow
 
+/** Opening and closing trips. Opening needs the network; closing never does. */
 interface TripRepository {
     /** Id of the trip currently in progress, or null when the device is idle. */
     val activeTripId: Flow<String?>

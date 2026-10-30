@@ -1,7 +1,7 @@
 package com.ecoruta.dispositivo.domain.usecase
 
 import com.ecoruta.dispositivo.domain.model.Position
-import com.ecoruta.dispositivo.domain.model.TransmissionPolicy
+import com.ecoruta.dispositivo.domain.policy.TransmissionPolicy
 import com.ecoruta.dispositivo.domain.repository.SessionRepository
 import com.ecoruta.dispositivo.domain.repository.TelemetryRepository
 import com.ecoruta.dispositivo.domain.repository.TripRepository

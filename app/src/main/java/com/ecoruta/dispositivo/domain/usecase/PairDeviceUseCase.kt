@@ -9,6 +9,7 @@ import com.ecoruta.dispositivo.domain.repository.TelemetryRepository
 import com.ecoruta.dispositivo.domain.repository.TripRepository
 import com.ecoruta.dispositivo.domain.system.TelemetryController
 
+/** Pairs the device with a one-time code from the admin panel and starts reporting at once. */
 class PairDeviceUseCase(
     private val sessions: SessionRepository,
     private val trips: TripRepository,

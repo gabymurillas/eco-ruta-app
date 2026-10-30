@@ -8,6 +8,7 @@ import com.ecoruta.dispositivo.data.remote.safeApiCall
 import com.ecoruta.dispositivo.domain.model.Incident
 import com.ecoruta.dispositivo.domain.repository.IncidentRepository
 
+/** Inserts into `incidencias`, resolving the unit's current route first (the table requires it). */
 class IncidentRepositoryImpl(
     private val api: SupabaseRestApi,
     private val routes: UnitRouteResolver,

@@ -10,9 +10,9 @@ import com.ecoruta.dispositivo.R
 import com.ecoruta.dispositivo.domain.model.BatteryStatus
 import com.ecoruta.dispositivo.domain.model.GpsStatus
 import com.ecoruta.dispositivo.domain.model.IncidentType
+import com.ecoruta.dispositivo.domain.model.Readiness
 import com.ecoruta.dispositivo.domain.model.ThemeMode
 import com.ecoruta.dispositivo.domain.model.TripStatus
-import com.ecoruta.dispositivo.domain.usecase.Readiness
 import com.ecoruta.dispositivo.presentation.components.LocalThemeModeControl
 import com.ecoruta.dispositivo.presentation.components.ThemeModeControl
 import com.ecoruta.dispositivo.presentation.idle.IdleScreen

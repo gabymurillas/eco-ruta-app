@@ -5,6 +5,10 @@ import androidx.work.Configuration
 import com.ecoruta.dispositivo.di.AppContainer
 import com.ecoruta.dispositivo.work.AppWorkerFactory
 
+/**
+ * Owns the [AppContainer] and gives WorkManager its worker factory. Allow-listing the app for
+ * kiosk mode happens here, before any activity can try to enter it.
+ */
 class EcoRutaApplication : Application(), Configuration.Provider {
 
     val container: AppContainer by lazy { AppContainer(this) }

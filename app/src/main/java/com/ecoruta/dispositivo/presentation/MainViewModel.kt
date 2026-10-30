@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
+/** Root state: the device state that picks the screen, and the theme mode chosen on screen. */
 class MainViewModel(
     observeDeviceState: ObserveDeviceStateUseCase,
     observeThemeMode: ObserveThemeModeUseCase,

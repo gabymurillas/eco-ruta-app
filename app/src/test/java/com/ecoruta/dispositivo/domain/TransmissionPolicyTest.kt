@@ -2,7 +2,7 @@ package com.ecoruta.dispositivo.domain
 
 import com.ecoruta.dispositivo.domain.model.GpsStatus
 import com.ecoruta.dispositivo.domain.model.OperationParams
-import com.ecoruta.dispositivo.domain.model.TransmissionPolicy
+import com.ecoruta.dispositivo.domain.policy.TransmissionPolicy
 import com.ecoruta.dispositivo.fakes.FixedParams
 import com.ecoruta.dispositivo.fakes.T0
 import com.ecoruta.dispositivo.fakes.fix

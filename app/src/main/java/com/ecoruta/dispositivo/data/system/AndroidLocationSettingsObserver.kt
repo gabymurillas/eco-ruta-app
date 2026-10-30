@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
 
+/** Watches the location master switch through `PROVIDERS_CHANGED_ACTION`. */
 class AndroidLocationSettingsObserver(
     private val context: Context,
     scope: CoroutineScope,

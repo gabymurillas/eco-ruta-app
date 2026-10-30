@@ -7,6 +7,7 @@ import com.ecoruta.dispositivo.data.remote.safeApiCall
 import com.ecoruta.dispositivo.domain.model.DeviceStatus
 import com.ecoruta.dispositivo.domain.repository.DeviceStatusRepository
 
+/** Sends the heartbeat through the `registrar_salud_del_dispositivo` RPC. */
 class DeviceStatusRepositoryImpl(
     private val api: SupabaseRestApi,
 ) : DeviceStatusRepository {

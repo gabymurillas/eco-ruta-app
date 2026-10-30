@@ -14,6 +14,7 @@ import com.ecoruta.dispositivo.domain.repository.SessionRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 
+/** Exchanges the pairing code with the `vincular-dispositivo` Edge Function and stores the session. */
 class SessionRepositoryImpl(
     private val preferences: DevicePreferences,
     private val authApi: SupabaseAuthApi,

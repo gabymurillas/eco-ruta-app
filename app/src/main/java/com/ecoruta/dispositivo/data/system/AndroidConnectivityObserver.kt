@@ -13,6 +13,10 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
 
+/**
+ * Online means a *validated* connection: a captive portal or dead mobile data counts as offline,
+ * so positions are queued instead of failing one request at a time.
+ */
 class AndroidConnectivityObserver(
     context: Context,
     scope: CoroutineScope,

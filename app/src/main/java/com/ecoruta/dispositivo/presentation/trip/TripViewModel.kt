@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/** Everything the trip screen shows: the live [TripStatus] plus the finish action's progress. */
 data class TripUiState(
     val status: TripStatus = TripStatus(),
     val isFinishing: Boolean = false,

@@ -3,7 +3,7 @@ package com.ecoruta.dispositivo.domain
 import com.ecoruta.dispositivo.data.system.InMemoryTelemetryStatusStore
 import com.ecoruta.dispositivo.domain.model.LocationFix
 import com.ecoruta.dispositivo.domain.model.OperationParams
-import com.ecoruta.dispositivo.domain.model.TransmissionPolicy
+import com.ecoruta.dispositivo.domain.policy.TransmissionPolicy
 import com.ecoruta.dispositivo.domain.usecase.CaptureTelemetryUseCase
 import com.ecoruta.dispositivo.fakes.FakeLocationSource
 import com.ecoruta.dispositivo.fakes.FakeSessionRepository

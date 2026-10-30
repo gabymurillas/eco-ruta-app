@@ -10,6 +10,10 @@ import androidx.core.app.NotificationCompat
 import com.ecoruta.dispositivo.R
 import com.ecoruta.dispositivo.presentation.MainActivity
 
+/**
+ * The persistent notification Android requires for a foreground service. Low importance: it
+ * must exist, not interrupt.
+ */
 object TelemetryNotification {
     const val ID = 1001
     private const val CHANNEL_ID = "telemetry"

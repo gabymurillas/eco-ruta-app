@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/** Everything the incident screen shows. */
 data class IncidentUiState(
     val selectedType: IncidentType? = null,
     val description: String = "",
@@ -30,6 +31,7 @@ sealed interface IncidentEvent {
     data object Sent : IncidentEvent
 }
 
+/** Holds the incident being written and sends it. Returns to the trip only once it is accepted. */
 class IncidentViewModel(private val reportIncident: ReportIncidentUseCase) : ViewModel() {
 
     private val _uiState = MutableStateFlow(IncidentUiState())

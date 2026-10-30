@@ -11,7 +11,10 @@ interface PendingPositionDao {
     @Insert
     suspend fun insert(position: PendingPositionEntity)
 
-    /** Oldest first, so the backend receives positions in capture order. */
+    /**
+     * Oldest first, so the queue drains trip by trip starting with the oldest trip. Order within a
+     * request does not matter: the server sorts each batch itself.
+     */
     @Query("SELECT * FROM pending_positions ORDER BY captured_at_ms ASC, id ASC LIMIT :limit")
     suspend fun oldest(limit: Int): List<PendingPositionEntity>
 

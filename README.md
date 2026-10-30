@@ -32,35 +32,84 @@ El APK queda en `app/build/outputs/apk/debug/app-debug.apk`.
 
 ## Arquitectura
 
-MVVM por capas con dependencias que apuntan hacia el dominio (`presentation → domain ← data`).
-El dominio es Kotlin puro (sin `android.*`), por eso se prueba en JVM sin emulador.
+MVVM por capas (Clean Architecture): las dependencias apuntan hacia el dominio,
+`presentation → domain ← data`. El dominio es Kotlin puro, sin `android.*`, por eso sus reglas se
+prueban en la JVM sin emulador.
 
 ```
-presentation/   Compose + ViewModel (StateFlow). Una carpeta por pantalla.
-  components/   Piezas compartidas: cristal, botones, avisos, andamio de pantalla, selector de tema.
-  theme/        Sistema de diseño EcoRuta (colores, Merriweather / Source Sans 3).
-  navigation/   Rutas tipadas; la pantalla la decide el DeviceState, no los botones.
-domain/
-  model/        Modelos y reglas puras (TransmissionPolicy: 5 s en movimiento / 30 s detenido).
-  repository/   Contratos.
-  system/       Contratos de la plataforma (GPS, batería, red, servicio, WorkManager).
-  usecase/      Una acción de negocio por clase.
-data/
-  local/        Room (cola offline) y DataStore (vinculación, viaje activo).
-  remote/       Retrofit + OkHttp (Supabase), DTOs, refresco automático de token.
-  repository/   Implementaciones (patrón outbox en TelemetryRepositoryImpl).
-  system/       Adaptadores Android (FusedLocation, BatteryManager, ConnectivityManager).
-service/        Foreground service (location), notificación, modo quiosco.
-work/           SyncWorker (reintenta la cola pendiente cuando vuelve la red).
-receiver/       Arranque automático y administrador de dispositivo.
-platform/       Permisos de Android que comparten el servicio y la interfaz.
-di/             AppContainer: raíz de composición manual.
+app/src/main/java/com/ecoruta/dispositivo/
+├── EcoRutaApplication.kt   Crea el AppContainer y configura WorkManager.
+├── core/                   Outcome y AppError: resultado tipado de toda operación que puede fallar.
+├── domain/                 Reglas del negocio. No conoce Android ni la red.
+│   ├── model/              Modelos inmutables (DeviceSession, Trip, Position, TripStatus, ThemeMode…).
+│   ├── policy/             TransmissionPolicy: 5 s en movimiento / 30 s detenido, calidad del GPS.
+│   ├── repository/         Contratos de datos (sesión, viajes, telemetría, parámetros, ajustes…).
+│   ├── system/             Contratos de la plataforma (GPS, batería, red, ubicación, servicio, cola).
+│   └── usecase/            Una acción de negocio por clase (PairDevice, StartTrip, FinishTrip…).
+├── data/                   Implementa los contratos del dominio.
+│   ├── local/db/           Room: la cola offline de posiciones.
+│   ├── local/prefs/        DataStore: vinculación (tokens cifrados con Keystore), viaje, ajustes.
+│   ├── mapper/             Dominio ↔ DTO ↔ entidad.
+│   ├── remote/             Retrofit + OkHttp contra Supabase: API, DTOs, renovación de token.
+│   ├── repository/         *RepositoryImpl (patrón outbox en TelemetryRepositoryImpl).
+│   └── system/             Adaptadores Android (FusedLocation, BatteryManager, ConnectivityManager…).
+├── presentation/           Interfaz: Compose + ViewModel (StateFlow).
+│   ├── <pantalla>/         pairing, idle, trip, incident, permission: XxxScreen + XxxViewModel.
+│   ├── components/         Piezas compartidas, una por archivo (cristal, botones, avisos, andamio…).
+│   ├── theme/              Sistema de diseño EcoRuta: Color, Type, Theme.
+│   ├── navigation/         Rutas tipadas; la pantalla la decide el DeviceState, no los botones.
+│   └── common/             Fábrica de ViewModels, mensajes de error, tiempo relativo.
+├── service/                Foreground service de ubicación y su notificación.
+├── work/                   SyncWorker: entrega posiciones y cierres pendientes al volver la red.
+├── receiver/               Arranque automático y administrador de dispositivo.
+├── platform/               Android que comparten servicio e interfaz: permisos y modo quiosco.
+└── di/                     AppContainer: raíz de composición (inyección manual).
+
+app/src/debug/              Solo en debug: catálogo de pantallas (ver Interfaz).
+app/src/test/               Pruebas JVM, en el mismo orden: data/, domain/, presentation/, fakes/.
 ```
+
+### Reglas de dependencia
+
+| Capa | Puede usar | Nunca usa |
+|---|---|---|
+| `domain` | `core`, Kotlin y coroutines | `android.*`, `data`, `presentation` |
+| `data` | `domain`, `core`, Android, Retrofit, Room | `presentation` |
+| `presentation` | `domain` (casos de uso y modelos), `core`, `platform` | `data`: la vista nunca habla con un repositorio ni con la red |
+| `service`, `work`, `receiver` | `domain` vía el `AppContainer` | lógica de negocio propia |
+| `di` | todo | — es el único lugar que conoce las implementaciones |
+
+Un ViewModel recibe **casos de uso**, no repositorios. Así cada acción que la interfaz puede pedir
+tiene nombre propio y se prueba sola.
+
+### Convenciones
+
+- **Idiomas:** identificadores y comentarios en inglés; textos de interfaz en español
+  (`res/values/strings.xml`, nunca en el código); nombres del backend en español con `@SerialName`.
+- **Comentarios:** dicen el *porqué*, no el *qué*. Toda clase pública lleva KDoc.
+- **Un tipo por archivo** (salvo un `UiState` junto a su ViewModel) y archivos cortos: el mayor ronda
+  las 250 líneas.
+- **Errores esperados** como `Outcome.Failure(AppError)`, nunca excepciones; el ViewModel los traduce
+  con `toMessageRes()`.
+- **Nada calibrable en el código:** intervalos y umbrales salen de la tabla `parametros`.
+- **Compilación estricta:** los avisos de Kotlin son errores (`allWarningsAsErrors`).
+
+### Cómo agregar una pantalla
+
+1. Estado y acciones: `presentation/<pantalla>/XxxViewModel.kt` con un `XxxUiState` inmutable.
+2. Si necesita algo nuevo del negocio: un caso de uso en `domain/usecase/` (y su contrato en
+   `domain/repository/` o `domain/system/`), implementado en `data/`.
+3. Interfaz: `XxxScreen.kt` sin estado (recibe `UiState` y lambdas) más un `XxxRoute` que conecta el
+   ViewModel. Construirla con `ScreenScaffold` y los componentes de `components/`.
+4. Registrar el ViewModel en `AppViewModelFactory` y sus dependencias en `AppContainer`.
+5. Ruta en `navigation/Route.kt`; si depende del estado del equipo, en `DeviceState.toRoute()`.
+6. Agregarla al catálogo de debug con sus estados, y probar su lógica en `app/src/test/`.
 
 ### Flujo de telemetría
 
 1. Al vincular (y al abrir la app ya vinculada) arranca `TelemetryService`, un foreground service de
    tipo `location` que vive mientras el equipo esté vinculado. Ejecuta `RunTelemetrySessionUseCase`.
+   Nunca arranca sin permiso de ubicación precisa: en Android 14+ eso cierra la app.
 2. **Latido**: envía la batería nada más arrancar y luego cada `emision_detenido_s`, haya viaje o no.
    El panel da la unidad por caída si pasa `sin_senal_umbral_s` sin latido, así que un equipo en
    espera no puede callarse (WorkManager no sirve: su mínimo periódico es 15 min).
@@ -132,7 +181,7 @@ La app usa **solo** la clave publicable (`apikey`) y el token de sesión del dis
 | Finalizar viaje    | `PATCH rest/v1/viajes?id=eq.<id>` `{finalizado_at}`              | Funciona sin red: se guarda con la hora real en que el conductor finalizó y `SyncWorker` lo envía al volver la conexión. |
 | Posiciones         | `POST functions/v1/registrar-posicion` `{viaje_id, posiciones:[{lat,lng,exactitud_m,velocidad_kmh,capturado_at}]}` | Guarda **y evalúa geocercas**. El insert directo a `posiciones` no evalúa nada. Sin `unidad_id` (sale del JWT). Un 5xx = no se guardó: se reintenta. |
 | Incidencias        | `POST rest/v1/incidencias` `{ruta_id, unidad_id, tipo, ...}`     | `tipo`: `calle_cerrada, falla_mecanica, desvio, congestion`. |
-| Latido             | `POST rest/v1/rpc/registrar_salud_del_dispositivo` `{bateria}`   | RPC, no PATCH: la unidad sale del JWT y `ultima_senal_at` la pone el servidor. Anon recibe 401. |
+| Latido             | `POST rest/v1/rpc/registrar_salud_del_dispositivo` `{bateria}`   | RPC, no PATCH: la unidad sale del JWT y `ultima_senal_at` la pone el servidor. Batería ilegible: se omite y el servidor conserva la última. Anon recibe 401. |
 
 ## Pendiente
 
@@ -140,5 +189,7 @@ La app usa **solo** la clave publicable (`apikey`) y el token de sesión del dis
   hoy solo muestra el código de 5 caracteres, no genera QR; hace falta definir su contenido en
   `docs/contrato-vinculacion.md` y que la web lo dibuje.
 - Fallback a `LocationManager` cuando no haya Google Play Services (limitación §6 del PDF).
+- Viaje cerrado desde el panel: el equipo no se entera y sigue en "En viaje"; sus posiciones se
+  guardan pero no evalúan geocercas. Hace falta que la app consulte el viaje o que el backend avise.
+- Modo quiosco: salida de mantenimiento protegida y pantalla siempre encendida durante el viaje.
 - Firma de release y `applicationId` definitivo.
-- Configurar `supabase.url` y `supabase.anonKey` (clave publicable) en `local.properties`.

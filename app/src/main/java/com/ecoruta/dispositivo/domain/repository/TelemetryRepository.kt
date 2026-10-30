@@ -4,6 +4,7 @@ import com.ecoruta.dispositivo.core.Outcome
 import com.ecoruta.dispositivo.domain.model.Position
 import kotlinx.coroutines.flow.Flow
 
+/** The offline-first position queue (outbox): positions are stored first and delivered after. */
 interface TelemetryRepository {
     /** Number of positions stored locally and not yet delivered. */
     val pendingCount: Flow<Int>

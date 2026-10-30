@@ -10,6 +10,7 @@ import androidx.work.WorkManager
 import com.ecoruta.dispositivo.domain.system.SyncScheduler
 import java.util.concurrent.TimeUnit
 
+/** One unique job that waits for any network and retries with backoff; it survives reboots. */
 class WorkManagerSyncScheduler(context: Context) : SyncScheduler {
 
     private val workManager = WorkManager.getInstance(context)

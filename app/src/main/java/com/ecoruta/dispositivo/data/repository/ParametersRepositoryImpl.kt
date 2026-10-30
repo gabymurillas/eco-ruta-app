@@ -9,6 +9,7 @@ import com.ecoruta.dispositivo.domain.model.OperationParams
 import com.ecoruta.dispositivo.domain.repository.ParametersRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 
+/** Keeps the parameters in memory for cheap reads on every GPS fix, and on disk for offline boots. */
 class ParametersRepositoryImpl(
     private val api: SupabaseRestApi,
     private val preferences: DevicePreferences,
