@@ -188,7 +188,7 @@ La app usa **solo** la clave publicable (`apikey`) y el token de sesión del dis
 | Viaje abierto      | `GET rest/v1/viajes?unidad_id=eq.<id>&finalizado_at=is.null`     | Solo tras un 409. Lectura pública. |
 | Finalizar viaje    | `PATCH rest/v1/viajes?id=eq.<id>` `{finalizado_at}`              | Funciona sin red: se guarda con la hora real en que el conductor finalizó y `SyncWorker` lo envía al volver la conexión. |
 | Posiciones         | `POST functions/v1/registrar-posicion` `{viaje_id, posiciones:[{lat,lng,exactitud_m,velocidad_kmh,capturado_at}]}` | Guarda **y evalúa geocercas**. El insert directo a `posiciones` no evalúa nada. Sin `unidad_id` (sale del JWT). Un 5xx = no se guardó: se reintenta. |
-| Incidencias        | `POST rest/v1/incidencias` `{ruta_id, unidad_id, tipo, ...}`     | `tipo`: `calle_cerrada, falla_mecanica, desvio, congestion`. |
+| Incidencias        | `POST rest/v1/incidencias` `{ruta_id, unidad_id, tipo, ...}`     | `tipo`: `calle_cerrada, falla_mecanica, desvio, congestion` u `otro` (solo observación; exige `descripcion`, `sql/08_incidencia_otro.sql`). |
 | Latido             | `POST rest/v1/rpc/registrar_salud_del_dispositivo` `{bateria}`   | RPC, no PATCH: la unidad sale del JWT y `ultima_senal_at` la pone el servidor. Batería ilegible: se omite y el servidor conserva la última. Anon recibe 401. |
 
 ## Pendiente

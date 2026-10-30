@@ -78,6 +78,7 @@ private fun IncidentType.toWireValue(): String = when (this) {
     IncidentType.MECHANICAL_FAILURE -> "falla_mecanica"
     IncidentType.DETOUR -> "desvio"
     IncidentType.CONGESTION -> "congestion"
+    IncidentType.OTHER -> "otro"
 }
 
 private const val KEY_MOVING_INTERVAL_S = "emision_movimiento_s"

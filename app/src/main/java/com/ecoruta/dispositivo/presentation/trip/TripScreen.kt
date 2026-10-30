@@ -85,7 +85,7 @@ fun TripScreen(
     ) {
         StatusBanner(status)
         if (showIncidentSent) IncidentSentNotice(onIncidentSentShown)
-        // Tall tiles use the height the decorative route used to take: more to read from the seat.
+        // A common height keeps each row even; the values stay large enough to read from the seat.
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             GpsTile(status, Modifier.weight(1f).heightIn(min = TILE_HEIGHT))
             ConnectionTile(status, Modifier.weight(1f).heightIn(min = TILE_HEIGHT))
@@ -255,4 +255,4 @@ private fun TripHeadline.titleRes(): Int = when (this) {
 }
 
 private val NOTICE_DURATION = 4.seconds
-private val TILE_HEIGHT = 150.dp
+private val TILE_HEIGHT = 112.dp

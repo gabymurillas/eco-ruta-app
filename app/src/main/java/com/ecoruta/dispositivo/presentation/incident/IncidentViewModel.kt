@@ -23,7 +23,8 @@ data class IncidentUiState(
     val isSending: Boolean = false,
     @StringRes val errorRes: Int? = null,
 ) {
-    val canSend: Boolean get() = selectedType != null && !isSending
+    /** A type, a note, or both: the note alone goes out as [IncidentType.OTHER]. */
+    val canSend: Boolean get() = (selectedType != null || description.isNotBlank()) && !isSending
 }
 
 /** One-off effects the screen reacts to exactly once. */
@@ -40,8 +41,9 @@ class IncidentViewModel(private val reportIncident: ReportIncidentUseCase) : Vie
     private val _events = Channel<IncidentEvent>(Channel.BUFFERED)
     val events: Flow<IncidentEvent> = _events.receiveAsFlow()
 
+    /** Tapping the chosen option again clears it, so a note can still go out on its own. */
     fun onTypeSelected(type: IncidentType) {
-        _uiState.update { it.copy(selectedType = type, errorRes = null) }
+        _uiState.update { state -> state.copy(selectedType = type.takeIf { it != state.selectedType }, errorRes = null) }
     }
 
     fun onDescriptionChange(description: String) {
@@ -50,8 +52,8 @@ class IncidentViewModel(private val reportIncident: ReportIncidentUseCase) : Vie
 
     fun onSend() {
         val current = _uiState.value
-        val type = current.selectedType ?: return
-        if (current.isSending) return
+        if (!current.canSend) return
+        val type = current.selectedType ?: IncidentType.OTHER
 
         _uiState.update { it.copy(isSending = true, errorRes = null) }
         viewModelScope.launch {

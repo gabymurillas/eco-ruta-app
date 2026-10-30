@@ -95,12 +95,13 @@
     <!-- Incident -->
     <string name="incident_title_1">Reportar</string>
     <string name="incident_title_2">incidencia</string>
-    <string name="incident_text">Elige qué está pasando en la ruta.</string>
+    <string name="incident_text">Elige qué está pasando en la ruta, escribe una observación o ambas.</string>
     <string name="incident_road_closed">Calle cerrada</string>
     <string name="incident_mechanical_failure">Falla mecánica</string>
     <string name="incident_detour">Desvío</string>
     <string name="incident_congestion">Congestión</string>
-    <string name="incident_description_label">Observación (opcional)</string>
+    <string name="incident_other">Otra</string>
+    <string name="incident_description_label">Observación</string>
     <string name="incident_description_hint">Solo con el vehículo detenido</string>
     <string name="incident_send">Enviar</string>
     <string name="incident_cancel">Cancelar</string>

@@ -1,11 +1,13 @@
 package com.ecoruta.dispositivo.presentation
 
 import com.ecoruta.dispositivo.domain.model.GpsStatus
+import com.ecoruta.dispositivo.domain.model.IncidentType
 import com.ecoruta.dispositivo.domain.model.TripStatus
 import com.ecoruta.dispositivo.domain.model.isNightAt
 import com.ecoruta.dispositivo.fakes.T0
 import com.ecoruta.dispositivo.presentation.common.Ago
 import com.ecoruta.dispositivo.presentation.common.agoOf
+import com.ecoruta.dispositivo.presentation.incident.IncidentUiState
 import com.ecoruta.dispositivo.presentation.trip.TripHeadline
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -60,5 +62,20 @@ class PresentationRulesTest {
         assertTrue(isNightAt(LocalTime.of(0, 0)))
         assertTrue(isNightAt(LocalTime.of(5, 59)))
         assertFalse(isNightAt(LocalTime.of(6, 0)))
+    }
+
+    @Test
+    fun `an incident goes out with a type, a note, or both, but not empty`() {
+        assertFalse(IncidentUiState().canSend)
+        assertFalse(IncidentUiState(description = "   ").canSend)
+        assertTrue(IncidentUiState(selectedType = IncidentType.DETOUR).canSend)
+        assertTrue(IncidentUiState(description = "Bache grande en la av. Bolívar").canSend)
+        assertFalse(IncidentUiState(description = "Bache", isSending = true).canSend)
+    }
+
+    @Test
+    fun `the catch-all type is never offered as an option`() {
+        assertFalse(IncidentType.OTHER in IncidentType.choices)
+        assertEquals(IncidentType.entries.size - 1, IncidentType.choices.size)
     }
 }

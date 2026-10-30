@@ -17,6 +17,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.AltRoute
+import androidx.compose.material.icons.automirrored.filled.Notes
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Traffic
@@ -89,7 +90,7 @@ fun IncidentScreen(
                 stringResource(R.string.incident_send),
                 onSend,
                 Modifier.weight(1f),
-                enabled = state.selectedType != null,
+                enabled = state.selectedType != null || state.description.isNotBlank(),
                 loading = state.isSending,
             )
         },
@@ -98,7 +99,7 @@ fun IncidentScreen(
         Text(stringResource(R.string.incident_text), color = ecoColors.inkMuted, style = MaterialTheme.typography.bodyLarge)
         // A plain choice, not a sequence: each option is recognised by its icon before its words.
         Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            IncidentType.entries.forEach { type ->
+            IncidentType.choices.forEach { type ->
                 IncidentOption(type, selected = state.selectedType == type, onClick = { onTypeSelected(type) })
             }
         }
@@ -161,6 +162,7 @@ private fun IncidentType.icon(): ImageVector = when (this) {
     IncidentType.MECHANICAL_FAILURE -> Icons.Filled.Build
     IncidentType.DETOUR -> Icons.AutoMirrored.Filled.AltRoute
     IncidentType.CONGESTION -> Icons.Filled.Traffic
+    IncidentType.OTHER -> Icons.AutoMirrored.Filled.Notes
 }
 
 @StringRes
@@ -169,4 +171,5 @@ private fun IncidentType.labelRes(): Int = when (this) {
     IncidentType.MECHANICAL_FAILURE -> R.string.incident_mechanical_failure
     IncidentType.DETOUR -> R.string.incident_detour
     IncidentType.CONGESTION -> R.string.incident_congestion
+    IncidentType.OTHER -> R.string.incident_other
 }
