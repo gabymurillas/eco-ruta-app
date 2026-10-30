@@ -41,6 +41,6 @@ class AndroidBatteryStatusSource(private val context: Context) : BatteryStatusSo
 
     private companion object {
         const val PERCENT_MAX = 100
-        val UNKNOWN = BatteryStatus(percent = 0, isCharging = false)
+        val UNKNOWN = BatteryStatus(percent = null, isCharging = false)
     }
 }

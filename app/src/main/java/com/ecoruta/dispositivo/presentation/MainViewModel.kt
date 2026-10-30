@@ -19,8 +19,11 @@ class MainViewModel(
     val deviceState: StateFlow<DeviceState?> = observeDeviceState()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), initialValue = null)
 
-    init {
-        // After a reboot or process death mid-trip, capture must come back without anyone touching it.
+    /**
+     * Called on every launch once location is granted. After a reboot or process death mid-trip,
+     * capture must come back without anyone touching it; starting the service sooner would crash.
+     */
+    fun onLocationPermissionGranted() {
         viewModelScope.launch { resumeTelemetry() }
     }
 

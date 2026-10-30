@@ -187,6 +187,8 @@ private class FakePositionsApi : SupabaseRestApi {
 
     override suspend fun createTrip(body: NewTripDto): List<TripDto> = error("unused")
 
+    override suspend fun getOpenTrips(unitFilter: String): List<TripDto> = error("unused")
+
     override suspend fun finishTrip(idFilter: String, body: FinishTripDto): Unit = error("unused")
 
     override suspend fun reportDeviceHealth(body: DeviceHealthDto): Unit = error("unused")

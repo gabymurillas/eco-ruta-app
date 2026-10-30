@@ -3,6 +3,7 @@ package com.ecoruta.dispositivo.data
 import com.ecoruta.dispositivo.data.mapper.toDomain
 import com.ecoruta.dispositivo.data.mapper.toOperationParams
 import com.ecoruta.dispositivo.data.remote.ApiJson
+import com.ecoruta.dispositivo.data.remote.dto.DeviceHealthDto
 import com.ecoruta.dispositivo.data.remote.dto.PairResponseDto
 import com.ecoruta.dispositivo.data.remote.dto.ParameterDto
 import com.ecoruta.dispositivo.data.remote.dto.PositionPointDto
@@ -102,6 +103,12 @@ class BackendContractTest {
         assertEquals(1, response.saved)
         assertTrue(response.evaluated)
         assertEquals(listOf("Parada 1"), response.notified)
+    }
+
+    @Test
+    fun `heartbeat sends the battery, and omits it when unknown so the server keeps the last level`() {
+        assertEquals("""{"bateria":83}""", ApiJson.encodeToString(DeviceHealthDto(battery = 83)))
+        assertEquals("{}", ApiJson.encodeToString(DeviceHealthDto(battery = null)))
     }
 
     @Test

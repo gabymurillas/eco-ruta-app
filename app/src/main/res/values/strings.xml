@@ -7,6 +7,12 @@
     <string name="notification_title">EcoRuta en servicio</string>
     <string name="notification_text">Equipo activo y reportando</string>
 
+    <!-- Location permission -->
+    <string name="permission_title">Se necesita la ubicación</string>
+    <string name="permission_text">EcoRuta transmite la posición de la unidad. Concede el permiso de ubicación precisa para continuar.</string>
+    <string name="permission_request">Conceder permiso</string>
+    <string name="permission_open_settings">Abrir ajustes</string>
+
     <!-- Pairing -->
     <string name="pairing_title">Vincular equipo</string>
     <string name="pairing_code_label">Código de vinculación</string>
@@ -21,7 +27,7 @@
     <string name="trip_gps">GPS: %1$s</string>
     <string name="trip_online">Conexión: en línea</string>
     <string name="trip_offline">Conexión: sin red</string>
-    <string name="trip_battery">Batería: %1$d %%</string>
+    <string name="trip_battery">Batería: %1$s</string>
     <string name="trip_last_sent">Último envío: %1$s</string>
     <string name="trip_pending">Posiciones pendientes: %1$d</string>
     <string name="trip_report_incident">Reportar incidencia</string>

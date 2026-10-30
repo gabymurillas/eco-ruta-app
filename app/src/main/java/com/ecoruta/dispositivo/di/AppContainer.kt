@@ -1,6 +1,7 @@
 package com.ecoruta.dispositivo.di
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.ecoruta.dispositivo.BuildConfig
@@ -145,6 +146,16 @@ class AppContainer(context: Context) {
             statusStore = statusStore,
             policy = policy,
         )
-        RunTelemetrySessionUseCase(capture, sendHeartbeat, tripRepository, parametersRepository)
+        RunTelemetrySessionUseCase(
+            captureTelemetry = capture,
+            sendHeartbeat = sendHeartbeat,
+            trips = tripRepository,
+            parameters = parametersRepository,
+            reportFailure = { Log.e(TELEMETRY_TAG, "Telemetry step failed; it will be retried", it) },
+        )
+    }
+
+    private companion object {
+        const val TELEMETRY_TAG = "TelemetrySession"
     }
 }

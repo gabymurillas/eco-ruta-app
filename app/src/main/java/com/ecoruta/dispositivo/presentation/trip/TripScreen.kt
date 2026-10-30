@@ -45,7 +45,7 @@ fun TripScreen(
         Text(stringResource(R.string.trip_transmitting), style = MaterialTheme.typography.headlineMedium)
         Text(stringResource(R.string.trip_gps, stringResource(status.gps.labelRes())))
         Text(stringResource(if (status.isOnline) R.string.trip_online else R.string.trip_offline))
-        Text(stringResource(R.string.trip_battery, status.battery.percent))
+        Text(stringResource(R.string.trip_battery, status.battery.percent?.let { "$it %" } ?: "—"))
         Text(stringResource(R.string.trip_last_sent, status.lastSentAt?.let(TIME_FORMAT::format) ?: "—"))
         Text(stringResource(R.string.trip_pending, status.pendingPositions))
         state.errorRes?.let { Text(stringResource(it), color = MaterialTheme.colorScheme.error) }

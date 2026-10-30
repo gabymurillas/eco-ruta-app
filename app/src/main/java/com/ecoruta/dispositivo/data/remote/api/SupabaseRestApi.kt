@@ -34,6 +34,10 @@ interface SupabaseRestApi {
     @POST("rest/v1/viajes")
     suspend fun createTrip(@Body body: NewTripDto): List<TripDto>
 
+    /** The unit's open trip, if any (a unit has at most one). `viajes` is publicly readable. */
+    @GET("rest/v1/viajes?select=id,unidad_id&finalizado_at=is.null")
+    suspend fun getOpenTrips(@Query("unidad_id") unitFilter: String): List<TripDto>
+
     @Headers("Prefer: return=minimal")
     @PATCH("rest/v1/viajes")
     suspend fun finishTrip(@Query("id") idFilter: String, @Body body: FinishTripDto)

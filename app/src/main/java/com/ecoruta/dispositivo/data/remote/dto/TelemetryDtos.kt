@@ -32,10 +32,13 @@ data class RegisterPositionsResponseDto(
     @SerialName("notificadas") val notified: List<String> = emptyList(),
 )
 
-/** Body of the `registrar_salud_del_dispositivo` RPC. The last-signal timestamp is set by the server. */
+/**
+ * Body of the `registrar_salud_del_dispositivo` RPC. The last-signal timestamp is set by the server.
+ * A null battery is omitted, and the server then keeps the last level it knew.
+ */
 @Serializable
 data class DeviceHealthDto(
-    @SerialName("bateria") val battery: Int,
+    @SerialName("bateria") val battery: Int?,
 )
 
 @Serializable
