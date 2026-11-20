@@ -12,7 +12,7 @@ import com.ecoruta.dispositivo.presentation.idle.IdleRoute
 import com.ecoruta.dispositivo.presentation.incident.IncidentRoute
 import com.ecoruta.dispositivo.presentation.pairing.PairingRoute
 import com.ecoruta.dispositivo.presentation.trip.TripRoute
-import com.ecoruta.dispositivo.presentation.welcome.WelcomeScreen
+import com.ecoruta.dispositivo.presentation.onboarding.OnboardingRoute
 
 /**
  * Screen flow is driven by [deviceState], not by button callbacks: pairing, starting and finishing
@@ -25,7 +25,7 @@ fun AppNavHost(deviceState: DeviceState) {
     val startDestination = remember { deviceState.toRoute() }
 
     NavHost(navController = navController, startDestination = startDestination) {
-        composable<Route.Welcome> { WelcomeScreen(onStart = { navController.navigate(Route.Pairing) }) }
+        composable<Route.Welcome> { OnboardingRoute() }
         composable<Route.Pairing> { PairingRoute() }
         composable<Route.Idle> { IdleRoute() }
         composable<Route.Trip> { TripRoute(onReportIncident = { navController.navigate(Route.Incident) }) }

@@ -5,101 +5,127 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
 /**
- * The EcoRuta design system (CLAUDE.md of the backend repository), converted from its oklch()
- * tokens to sRGB. The web only defines the light palette; the dark one keeps the same hues with
- * lightness flipped. Every text/fill pair below was checked against WCAG AA (4.5:1).
+ * Colour tokens (DESIGN.md §3.1). They are the web admin panel's palette (`.tema-admin` in
+ * ecoruta-web/src/app/globals.css), so the device and the panel read as one product.
  *
- * Three palettes with separate jobs, never mixed: brand (terracotta, identity and the primary
- * action), status (live / warning / error) and the neutral warm surfaces.
+ * Three groups with separate jobs, never mixed: neutral surfaces and ink, the brand (petrol for the
+ * header and the main action, teal as accent) and status (success / warning / error). Every text
+ * on fill pair below passes WCAG AA; the ratios are listed in DESIGN.md.
  */
 @Immutable
 data class EcoColors(
     val background: Color,
+    val surface: Color,
+    val border: Color,
+    /** Outlines that must be seen: secondary buttons, fields, radio rings (3:1 against [surface]). */
+    val borderField: Color,
     val ink: Color,
     val inkMuted: Color,
-    val border: Color,
 
-    /** Brand: identity accents. Never a status. */
+    /** The top bar band. */
+    val header: Color,
+    val onHeader: Color,
+    val onHeaderMuted: Color,
+
+    /** Brand accent: focus and identity. Never a status. */
     val brand: Color,
-    /** Fill of the primary action; [onBrand] on top passes AA (plain terracotta does not). */
+    /** The unit in the Eco mark on the petrol header: the light teal, so it reads in both themes. */
+    val brandOnHeader: Color,
+    /** Fill of the main action and of a chosen option. */
     val brandStrong: Color,
-    val onBrand: Color,
+    val onBrandStrong: Color,
+    /** Quiet brand fill: secondary actions inside a card and informative notices. */
+    val brandTint: Color,
+    val brandText: Color,
 
-    /** Status fills. Text on them is [onStatus], except on [warning], which takes [onWarning]. */
+    /** Status dots and icons. */
     val success: Color,
+    /** The panel's green fails AA under white text, so solid status fills use this deeper one. */
+    val successStrong: Color,
+    val onSuccessStrong: Color,
     val warning: Color,
-    val error: Color,
-    val info: Color,
-    val onStatus: Color,
     val onWarning: Color,
-    /** Warning hue dark enough to be read as text on [background]. */
-    val warningInk: Color,
+    val warningSurface: Color,
+    val warningBorder: Color,
+    val error: Color,
+    val onError: Color,
+    val errorSurface: Color,
+    val errorBorder: Color,
 
-    /** Liquid glass: translucent fill, a rim lighter at the top, and the contour lines behind. */
-    val glass: Color,
-    val glassStrong: Color,
-    val glassRimTop: Color,
-    val glassRimBottom: Color,
-    val contour: Color,
-    val scrim: Color,
+    /** Dims the background photo in the dark theme. */
+    val photoScrim: Color,
     val isDark: Boolean,
 )
 
 val LightEcoColors = EcoColors(
-    background = Color(0xFFFBF4EA), // oklch(97% 0.015 75) crema
-    ink = Color(0xFF291F18), // oklch(25% 0.02 60)
-    inkMuted = Color(0xFF665B53), // oklch(48% 0.02 60), 6:1 on crema
-    border = Color(0xFFD8CBC1), // oklch(85% 0.02 60)
-    brand = Color(0xFFCB4A2A), // oklch(58% 0.17 35) terracota
-    brandStrong = Color(0xFFA03317), // oklch(48% 0.15 35) terracota profundo, 7:1 with white
-    onBrand = Color.White,
-    success = Color(0xFF007E46), // oklch(52% 0.13 155)
-    warning = Color(0xFFD28500), // oklch(68% 0.15 70)
-    error = Color(0xFFB00A1D), // oklch(48% 0.19 25)
-    info = Color(0xFF0070A6), // oklch(52% 0.12 240)
-    onStatus = Color.White,
-    onWarning = Color(0xFF291F18),
-    warningInk = Color(0xFF6C4302), // oklch(42% 0.09 70)
-    glass = Color(0x9EFFFBF6), // superficie at 62 %
-    glassStrong = Color(0xE0FFFBF6), // superficie at 88 %
-    glassRimTop = Color(0xFFFFFFFF),
-    glassRimBottom = Color(0x33291F18),
-    contour = Color(0x1A291F18),
-    scrim = Color(0x59291F18),
+    background = Color(0xFFF1F5F6),
+    surface = Color(0xFFFFFFFF),
+    border = Color(0xFFDCE4E7),
+    borderField = Color(0xFF78898F),
+    ink = Color(0xFF10232A),
+    inkMuted = Color(0xFF4B5E65),
+    header = Color(0xFF0E2A33),
+    onHeader = Color(0xFFFFFFFF),
+    onHeaderMuted = Color(0xFFCFE0E4),
+    brand = Color(0xFF197878),
+    brandOnHeader = Color(0xFF4FC1BE),
+    brandStrong = Color(0xFF0E2A33),
+    onBrandStrong = Color(0xFFFFFFFF),
+    brandTint = Color(0xFFE8EFF1),
+    brandText = Color(0xFF145F60),
+    success = Color(0xFF1E8E5A),
+    successStrong = Color(0xFF137049),
+    onSuccessStrong = Color(0xFFFFFFFF),
+    warning = Color(0xFFB4531A),
+    onWarning = Color(0xFFFFFFFF),
+    warningSurface = Color(0xFFF7F5F2),
+    warningBorder = Color(0xFFE2DDD6),
+    error = Color(0xFFB42318),
+    onError = Color(0xFFFFFFFF),
+    errorSurface = Color(0xFFFBEAE8),
+    errorBorder = Color(0xFFF1C7C2),
+    photoScrim = Color(0x00000000),
     isDark = false,
 )
 
 val DarkEcoColors = EcoColors(
-    background = Color(0xFF130E0A), // oklch(17% 0.012 60)
-    ink = Color(0xFFF3EDE6), // oklch(95% 0.012 75)
-    inkMuted = Color(0xFFBEB6AD), // oklch(78% 0.015 70), 9.6:1
-    border = Color(0xFF3E3630),
-    brand = Color(0xFFE57255), // oklch(68% 0.15 35)
-    brandStrong = Color(0xFFD05F43), // oklch(62% 0.15 35), 5:1 with the dark ink
-    onBrand = Color(0xFF130E0A),
-    success = Color(0xFF4BC680), // oklch(74% 0.15 155)
-    warning = Color(0xFFF2AF48), // oklch(80% 0.14 75)
-    error = Color(0xFFF66D67), // oklch(70% 0.17 25)
-    info = Color(0xFF5EADE2), // oklch(72% 0.11 240)
-    onStatus = Color(0xFF130E0A),
-    onWarning = Color(0xFF130E0A),
-    warningInk = Color(0xFFF8C379),
-    glass = Color(0x14FFFFFF), // white at 8 %
-    glassStrong = Color(0x24FFFFFF), // white at 14 %
-    glassRimTop = Color(0x40FFFFFF),
-    glassRimBottom = Color(0x0FFFFFFF),
-    contour = Color(0x14FFFFFF),
-    scrim = Color(0x99000000),
+    background = Color(0xFF0B1B21),
+    surface = Color(0xFF11262D),
+    border = Color(0xFF24414A),
+    borderField = Color(0xFF6E878E),
+    ink = Color(0xFFE4EDEF),
+    inkMuted = Color(0xFFA9BCC2),
+    header = Color(0xFF06141A),
+    onHeader = Color(0xFFFFFFFF),
+    onHeaderMuted = Color(0xFFCFE0E4),
+    brand = Color(0xFF4FC1BE),
+    brandOnHeader = Color(0xFF4FC1BE),
+    brandStrong = Color(0xFFE4EDEF),
+    onBrandStrong = Color(0xFF0B1B21),
+    brandTint = Color(0xFF173A44),
+    brandText = Color(0xFF4FC1BE),
+    success = Color(0xFF3CC283),
+    successStrong = Color(0xFF3CC283),
+    onSuccessStrong = Color(0xFF0B1B21),
+    warning = Color(0xFFF08A4B),
+    onWarning = Color(0xFF0B1B21),
+    warningSurface = Color(0xFF152A31),
+    warningBorder = Color(0xFF5A4130),
+    error = Color(0xFFF28B82),
+    onError = Color(0xFF0B1B21),
+    errorSurface = Color(0xFF2A1B1E),
+    errorBorder = Color(0xFF5C2B2B),
+    photoScrim = Color(0x73000000),
     isDark = true,
 )
 
-/** The dark ground at the foot of the welcome photo; its text block continues it, in both themes. */
-val PhotoGround = Color(0xFF0D110D)
-
-/** Dims the background photo in the dark theme, so the screen reads as night like the rest. */
-val PhotoNightScrim = Color(0x66000000)
-
-/** Text over a photograph: always white, since the photo does not change with the theme. */
+/** Text over the welcome photo: always white, since the photo does not change with the theme. */
 val OnPhoto = Color.White
+
+/** Secondary text over the photo. */
+val OnPhotoMuted = Color(0xCCFFFFFF)
+
+/** The dark ground at the foot of the welcome photo, in both themes. */
+val PhotoGround = Color(0xFF0D110D)
 
 val LocalEcoColors = staticCompositionLocalOf { LightEcoColors }

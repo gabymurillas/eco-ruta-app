@@ -1,19 +1,16 @@
 package com.ecoruta.dispositivo.presentation.components
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BrightnessAuto
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,45 +18,34 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.unit.dp
 import com.ecoruta.dispositivo.R
 import com.ecoruta.dispositivo.domain.model.ThemeMode
-import com.ecoruta.dispositivo.presentation.theme.ecoColors
+import com.ecoruta.dispositivo.presentation.theme.EcoTheme
 
 /** The theme in force and how to change it, provided once at the root for the top bar selector. */
 data class ThemeModeControl(val mode: ThemeMode, val onChange: (ThemeMode) -> Unit)
 
 val LocalThemeModeControl = staticCompositionLocalOf { ThemeModeControl(ThemeMode.SYSTEM) {} }
 
-/** The small selector in the top bar: follow the phone, decide by the hour, or force light or dark. */
+/** The selector in the top bar: follow the phone, decide by the hour, or force light or dark. */
 @Composable
 fun ThemeModeSelector() {
     val control = LocalThemeModeControl.current
-    val colors = ecoColors
+    val colors = EcoTheme.colors
     var open by remember { mutableStateOf(false) }
     val description = stringResource(R.string.theme_selector, stringResource(control.mode.labelRes()))
     Box {
-        Box(
-            Modifier
-                .size(52.dp)
-                .glass(strong = true, shape = RoundedCornerShape(percent = 50))
-                .clickable(role = Role.Button, onClickLabel = description) { open = true },
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(control.mode.icon(), contentDescription = description, tint = colors.ink)
-        }
+        HeaderIconButton(control.mode.icon(), description, onClick = { open = true })
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
             ThemeMode.entries.forEach { mode ->
                 DropdownMenuItem(
-                    text = { Text(stringResource(mode.labelRes()), style = MaterialTheme.typography.bodyLarge) },
-                    leadingIcon = { Icon(mode.icon(), contentDescription = null) },
+                    text = { Text(stringResource(mode.labelRes()), style = EcoTheme.type.body, color = colors.ink) },
+                    leadingIcon = { Icon(mode.icon(), contentDescription = null, tint = colors.ink) },
                     trailingIcon = if (mode == control.mode) {
-                        { Text("✓", style = MaterialTheme.typography.bodyLarge) }
+                        { Icon(Icons.Filled.Check, contentDescription = stringResource(R.string.theme_selected), tint = colors.brand) }
                     } else {
                         null
                     },
@@ -67,7 +53,7 @@ fun ThemeModeSelector() {
                         open = false
                         control.onChange(mode)
                     },
-                    modifier = Modifier.padding(vertical = 4.dp),
+                    modifier = Modifier.heightIn(min = EcoTheme.size.controlSmall),
                 )
             }
         }

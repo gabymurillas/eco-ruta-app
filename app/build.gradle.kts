@@ -47,6 +47,7 @@ android {
 
         buildConfigField("String", "SUPABASE_URL", "\"${backendSetting("supabase.url")}\"")
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"${backendSetting("supabase.anonKey")}\"")
+        buildConfigField("boolean", "MOCK_BACKEND", "false")
     }
 
     buildTypes {
@@ -54,6 +55,23 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        }
+        // A debug build that answers every backend call with sample data (MockBackendInterceptor),
+        // to walk through all screens with no pairing code. Installs next to the real app.
+        create("demo") {
+            initWith(getByName("debug"))
+            applicationIdSuffix = ".demo"
+            versionNameSuffix = "-demo"
+            matchingFallbacks += "debug"
+            buildConfigField("boolean", "MOCK_BACKEND", "true")
+        }
+    }
+
+    sourceSets {
+        // The demo also carries the debug design catalog.
+        getByName("demo") {
+            java.srcDir("src/debug/java")
+            manifest.srcFile("src/debug/AndroidManifest.xml")
         }
     }
 
@@ -125,6 +143,8 @@ dependencies {
 
     // Location
     implementation(libs.play.services.location)
+    // Onboarding map: OpenStreetMap tiles, the same the web panel uses (Leaflet). No key, no account.
+    implementation(libs.osmdroid)
     implementation(libs.kotlinx.coroutines.play.services)
 
     // Networking

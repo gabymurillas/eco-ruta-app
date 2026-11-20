@@ -2,6 +2,7 @@ package com.ecoruta.dispositivo.domain.usecase
 
 import com.ecoruta.dispositivo.domain.model.DeviceState
 import com.ecoruta.dispositivo.domain.repository.SessionRepository
+import com.ecoruta.dispositivo.domain.repository.SettingsRepository
 import com.ecoruta.dispositivo.domain.repository.TripRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -13,11 +14,16 @@ import kotlinx.coroutines.flow.combine
 class ObserveDeviceStateUseCase(
     private val sessions: SessionRepository,
     private val trips: TripRepository,
+    private val settings: SettingsRepository,
 ) {
     operator fun invoke(): Flow<DeviceState> =
-        combine(sessions.session, trips.activeTripId) { session, tripId ->
+        combine(sessions.session, trips.activeTripId, settings.onboardingSeen) { session, tripId, onboardingSeen ->
             when {
-                session == null -> DeviceState.Unpaired(firstTime = sessions.lastPairedUnitId() == null)
+                // The carousel shows once per phone: never after it was seen, nor on a phone that
+                // was already paired (an update must not greet a unit in service as a new one).
+                session == null -> DeviceState.Unpaired(
+                    firstTime = !onboardingSeen && sessions.lastPairedUnitId() == null,
+                )
                 tripId == null -> DeviceState.Idle(session)
                 else -> DeviceState.OnTrip(session, tripId)
             }

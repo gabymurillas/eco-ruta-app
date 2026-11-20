@@ -13,17 +13,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
+import com.ecoruta.dispositivo.presentation.theme.EcoTheme
 
-/** A coloured dot; [pulse] adds the slow 2 s halo EcoRuta uses for "live". */
+/** A coloured dot; [pulse] adds the slow halo EcoRuta uses for "live". */
 @Composable
-fun StatusDot(color: Color, modifier: Modifier = Modifier, pulse: Boolean = false, size: Dp = 12.dp) {
+fun StatusDot(color: Color, modifier: Modifier = Modifier, pulse: Boolean = false, size: Dp = EcoTheme.size.dot) {
+    val motion = EcoTheme.motion
     val halo = if (pulse) {
         val transition = rememberInfiniteTransition(label = "pulse")
         val progress by transition.animateFloat(
             initialValue = 0f,
             targetValue = 1f,
-            animationSpec = infiniteRepeatable(tween(PULSE_MILLIS), RepeatMode.Restart),
+            animationSpec = infiniteRepeatable(tween(motion.pulseMillis), RepeatMode.Restart),
             label = "halo",
         )
         progress
@@ -35,11 +36,15 @@ fun StatusDot(color: Color, modifier: Modifier = Modifier, pulse: Boolean = fals
             .size(size)
             .drawBehind {
                 if (halo != null) {
-                    drawCircle(color.copy(alpha = 0.45f * (1 - halo)), radius = this.size.minDimension / 2 * (1 + 1.6f * halo))
+                    drawCircle(
+                        color.copy(alpha = motion.pulseAlpha * (1 - halo)),
+                        radius = this.size.minDimension / 2 * (1 + HALO_GROWTH * halo),
+                    )
                 }
                 drawCircle(color)
             },
     )
 }
 
-private const val PULSE_MILLIS = 2_000
+/** How far the halo grows past the dot, as a multiple of its radius. */
+private const val HALO_GROWTH = 1.6f

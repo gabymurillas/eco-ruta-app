@@ -4,6 +4,7 @@ import com.ecoruta.dispositivo.data.local.prefs.DevicePreferences
 import com.ecoruta.dispositivo.data.remote.api.SupabaseAuthApi
 import com.ecoruta.dispositivo.data.remote.api.SupabaseRestApi
 import com.ecoruta.dispositivo.data.remote.auth.SessionAuthenticator
+import com.ecoruta.dispositivo.data.remote.mock.MockBackendInterceptor
 import com.ecoruta.dispositivo.data.remote.auth.SupabaseHeadersInterceptor
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -19,6 +20,8 @@ data class SupabaseConfig(
     val baseUrl: String,
     val anonKey: String,
     val enableHttpLogging: Boolean,
+    /** Only the `demo` build: answer every call locally instead of reaching Supabase. */
+    val useMockBackend: Boolean = false,
 )
 
 /** Builds the HTTP stack: one client for pairing/refresh, one authenticated client for everything else. */
@@ -26,6 +29,9 @@ class RemoteServices(
     private val config: SupabaseConfig,
     preferences: DevicePreferences,
 ) {
+    // One instance for both clients, so a trip opened through one is seen by the other.
+    private val mockBackend = MockBackendInterceptor()
+
     val authApi: SupabaseAuthApi = retrofit(
         client = baseClient(accessToken = { null }).build(),
     ).create(SupabaseAuthApi::class.java)
@@ -38,6 +44,7 @@ class RemoteServices(
 
     private fun baseClient(accessToken: () -> String?): OkHttpClient.Builder =
         OkHttpClient.Builder()
+            .apply { if (config.useMockBackend) addInterceptor(mockBackend) }
             .connectTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .readTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .writeTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)

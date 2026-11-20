@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.ecoruta.dispositivo.domain.model.DeviceSession
 import com.ecoruta.dispositivo.domain.model.ThemeMode
@@ -46,6 +47,13 @@ class DevicePreferences(
 
     suspend fun setThemeMode(mode: ThemeMode) {
         store.edit { it[THEME_MODE] = mode.name }
+    }
+
+    /** Whether the welcome carousel was already shown. Survives unpairing: it is about the phone. */
+    val onboardingSeen: Flow<Boolean> = store.data.map { it[ONBOARDING_SEEN] == true }.distinctUntilChanged()
+
+    suspend fun setOnboardingSeen() {
+        store.edit { it[ONBOARDING_SEEN] = true }
     }
 
     /** Unit of the last pairing, kept even after its session was revoked. */
@@ -162,5 +170,6 @@ class DevicePreferences(
         val PENDING_CLOSE_AT_MS = longPreferencesKey("pending_close_at_ms")
         val PARAMETERS_JSON = stringPreferencesKey("parameters_json")
         val THEME_MODE = stringPreferencesKey("theme_mode")
+        val ONBOARDING_SEEN = booleanPreferencesKey("onboarding_seen")
     }
 }

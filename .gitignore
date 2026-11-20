@@ -13,3 +13,6 @@ captures/
 *.keystore
 keystore.properties
 .DS_Store
+
+# MCP local (CodeGraph)
+.mcp.json

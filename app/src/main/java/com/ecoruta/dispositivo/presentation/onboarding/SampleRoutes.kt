@@ -1,0 +1,53 @@
+package com.ecoruta.dispositivo.presentation.onboarding
+
+/**
+ * The route the onboarding map drives: about 1.7 km through the centre of San Juan de los Morros,
+ * heading south-west. The points follow real streets: they are the line the OSRM router (built on
+ * OpenStreetMap, the same map as the tiles) returned once for this trip, trimmed of a U-turn at
+ * the end. Kept local on purpose: the page shows it at once, with no routing call at runtime.
+ */
+val SanJuanDemoRoute: List<LatLon> = listOf(
+    LatLon(9.915220, -67.354815),
+    LatLon(9.914594, -67.354849),
+    LatLon(9.913948, -67.355077),
+    LatLon(9.913452, -67.355344),
+    LatLon(9.913318, -67.355428),
+    LatLon(9.912829, -67.355837),
+    LatLon(9.912634, -67.356040),
+    LatLon(9.912342, -67.356487),
+    LatLon(9.911996, -67.357148),
+    LatLon(9.911574, -67.357947),
+    LatLon(9.911427, -67.358161),
+    LatLon(9.911184, -67.358486),
+    LatLon(9.911124, -67.358559),
+    LatLon(9.910927, -67.358793),
+    LatLon(9.910726, -67.358921),
+    LatLon(9.910529, -67.359006),
+    LatLon(9.910337, -67.359089),
+    LatLon(9.909876, -67.359323),
+    LatLon(9.909523, -67.359524),
+    LatLon(9.909001, -67.359881),
+    LatLon(9.908618, -67.360160),
+    LatLon(9.908380, -67.360318),
+    LatLon(9.908323, -67.360352),
+    LatLon(9.908189, -67.360393),
+    LatLon(9.907978, -67.360383),
+    LatLon(9.907806, -67.360327),
+    LatLon(9.907367, -67.360166),
+    LatLon(9.907069, -67.360047),
+    LatLon(9.906642, -67.359878),
+    LatLon(9.906251, -67.359741),
+    LatLon(9.906184, -67.359719),
+    LatLon(9.906095, -67.359717),
+    LatLon(9.906023, -67.359694),
+    LatLon(9.905851, -67.359621),
+    LatLon(9.904792, -67.359163),
+    LatLon(9.904619, -67.359129),
+    LatLon(9.904567, -67.359127),
+    LatLon(9.904478, -67.359123),
+    LatLon(9.904245, -67.359161),
+    LatLon(9.904079, -67.359193),
+    LatLon(9.903899, -67.359245),
+    LatLon(9.903529, -67.359424),
+    LatLon(9.903103, -67.359678),
+)

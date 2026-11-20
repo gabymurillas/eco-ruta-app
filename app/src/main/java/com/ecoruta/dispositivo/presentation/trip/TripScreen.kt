@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,7 +21,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -33,16 +30,15 @@ import com.ecoruta.dispositivo.domain.model.TripStatus
 import com.ecoruta.dispositivo.presentation.common.LocalViewModelFactory
 import com.ecoruta.dispositivo.presentation.common.agoText
 import com.ecoruta.dispositivo.presentation.common.rememberNow
-import com.ecoruta.dispositivo.presentation.components.GlassButton
 import com.ecoruta.dispositivo.presentation.components.InfoTile
 import com.ecoruta.dispositivo.presentation.components.NoticeBanner
 import com.ecoruta.dispositivo.presentation.components.PrimaryButton
+import com.ecoruta.dispositivo.presentation.components.SecondaryButton
 import com.ecoruta.dispositivo.presentation.components.ScreenScaffold
 import com.ecoruta.dispositivo.presentation.components.StatusDot
 import com.ecoruta.dispositivo.presentation.components.Tone
 import com.ecoruta.dispositivo.presentation.theme.EcoColors
-import com.ecoruta.dispositivo.presentation.theme.Merriweather
-import com.ecoruta.dispositivo.presentation.theme.ecoColors
+import com.ecoruta.dispositivo.presentation.theme.EcoTheme
 
 @Composable
 fun TripRoute(
@@ -64,25 +60,24 @@ fun TripScreen(
 
     ScreenScaffold(
         bottomBar = {
-            GlassButton(stringResource(R.string.trip_report_incident), onReportIncident, Modifier.weight(1f), height = 84.dp)
+            SecondaryButton(stringResource(R.string.trip_report_incident), onReportIncident, Modifier.weight(1f))
             PrimaryButton(
                 stringResource(R.string.trip_finish),
                 onClick = { confirmFinish = true },
                 modifier = Modifier.weight(1f),
                 loading = state.isFinishing,
-                height = 84.dp,
             )
         },
     ) {
         StatusBanner(status)
         // A common height keeps each row even; the values stay large enough to read from the seat.
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            GpsTile(status, Modifier.weight(1f).heightIn(min = TILE_HEIGHT))
-            ConnectionTile(status, Modifier.weight(1f).heightIn(min = TILE_HEIGHT))
+        Row(horizontalArrangement = Arrangement.spacedBy(EcoTheme.spacing.sm)) {
+            GpsTile(status, Modifier.weight(1f).heightIn(min = EcoTheme.size.tileMin))
+            ConnectionTile(status, Modifier.weight(1f).heightIn(min = EcoTheme.size.tileMin))
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            PowerTile(status, Modifier.weight(1f).heightIn(min = TILE_HEIGHT))
-            UploadsTile(status, Modifier.weight(1f).heightIn(min = TILE_HEIGHT))
+        Row(horizontalArrangement = Arrangement.spacedBy(EcoTheme.spacing.sm)) {
+            PowerTile(status, Modifier.weight(1f).heightIn(min = EcoTheme.size.tileMin))
+            UploadsTile(status, Modifier.weight(1f).heightIn(min = EcoTheme.size.tileMin))
         }
         state.errorRes?.let { NoticeBanner(stringResource(it), Tone.ERROR) }
     }
@@ -99,15 +94,14 @@ fun TripScreen(
 }
 
 /**
- * The one thing to read from the seat. A solid fill, never glass: it has to hold its contrast in
+ * The one thing to read from the seat. A solid fill, never translucent: it has to hold its contrast in
  * direct sunlight. Colour, dot and words all say the same, so colour is never the only signal.
  */
 @Composable
 private fun StatusBanner(status: TripStatus) {
-    val colors = ecoColors
+    val colors = EcoTheme.colors
     val headline = TripHeadline.of(status)
-    val fill = headline.fill(colors)
-    val onFill = if (headline.severity == TripHeadline.Severity.WARNING) colors.onWarning else colors.onStatus
+    val (fill, onFill) = headline.fill(colors)
     val now = rememberNow()
     val detail = when (headline) {
         TripHeadline.TRANSMITTING -> status.lastSentAt
@@ -121,23 +115,23 @@ private fun StatusBanner(status: TripStatus) {
     Column(
         Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(26.dp))
+            .clip(EcoTheme.radius.xl)
             .background(fill)
-            .padding(horizontal = 22.dp, vertical = 26.dp)
+            .padding(EcoTheme.spacing.xxl)
             .semantics { liveRegion = LiveRegionMode.Polite },
-        verticalArrangement = Arrangement.spacedBy(6.dp),
+        verticalArrangement = Arrangement.spacedBy(EcoTheme.spacing.xs),
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            StatusDot(onFill, pulse = headline == TripHeadline.TRANSMITTING, size = 16.dp)
-            Text(stringResource(headline.titleRes()), color = onFill, fontFamily = Merriweather, style = MaterialTheme.typography.headlineLarge)
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(EcoTheme.spacing.md)) {
+            StatusDot(onFill, pulse = headline == TripHeadline.TRANSMITTING, size = EcoTheme.size.dotLarge)
+            Text(stringResource(headline.titleRes()), color = onFill, style = EcoTheme.type.status)
         }
-        Text(detail, color = onFill, style = MaterialTheme.typography.bodyLarge)
+        Text(detail, color = onFill, style = EcoTheme.type.body)
     }
 }
 
 @Composable
 private fun GpsTile(status: TripStatus, modifier: Modifier) {
-    val colors = ecoColors
+    val colors = EcoTheme.colors
     val (valueRes, tint) = when {
         !status.isLocationEnabled -> R.string.value_location_off to colors.error
         status.gps == GpsStatus.GOOD -> R.string.value_gps_good to colors.success
@@ -154,7 +148,7 @@ private fun GpsTile(status: TripStatus, modifier: Modifier) {
 
 @Composable
 private fun ConnectionTile(status: TripStatus, modifier: Modifier) {
-    val colors = ecoColors
+    val colors = EcoTheme.colors
     InfoTile(
         label = stringResource(R.string.tile_connection),
         value = stringResource(if (status.isOnline) R.string.value_online else R.string.value_offline),
@@ -169,7 +163,7 @@ private fun ConnectionTile(status: TripStatus, modifier: Modifier) {
  */
 @Composable
 private fun PowerTile(status: TripStatus, modifier: Modifier) {
-    val colors = ecoColors
+    val colors = EcoTheme.colors
     val charging = status.battery.isCharging
     InfoTile(
         label = stringResource(R.string.tile_power),
@@ -177,14 +171,13 @@ private fun PowerTile(status: TripStatus, modifier: Modifier) {
         detail = status.battery.percent?.let { stringResource(R.string.value_battery_percent, it) }
             ?: stringResource(R.string.value_battery_unknown),
         modifier = modifier,
-        valueColor = if (charging) colors.ink else colors.warningInk,
         indicator = { StatusDot(if (charging) colors.success else colors.warning) },
     )
 }
 
 @Composable
 private fun UploadsTile(status: TripStatus, modifier: Modifier) {
-    val colors = ecoColors
+    val colors = EcoTheme.colors
     val queued = status.pendingPositions
     InfoTile(
         label = stringResource(R.string.tile_uploads),
@@ -198,27 +191,28 @@ private fun UploadsTile(status: TripStatus, modifier: Modifier) {
 /** Big, stacked buttons: this is answered from the seat, and the confirm is not a "good" green. */
 @Composable
 private fun FinishDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
-    val colors = ecoColors
+    val colors = EcoTheme.colors
     Dialog(onDismissRequest = onDismiss) {
         Column(
             Modifier
-                .clip(RoundedCornerShape(28.dp))
-                .background(colors.background)
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+                .clip(EcoTheme.radius.xl)
+                .background(colors.surface)
+                .padding(EcoTheme.spacing.xxl),
+            verticalArrangement = Arrangement.spacedBy(EcoTheme.spacing.md),
         ) {
-            Text(stringResource(R.string.finish_dialog_title), color = colors.ink, fontFamily = Merriweather, style = MaterialTheme.typography.headlineSmall)
-            Text(stringResource(R.string.finish_dialog_text), color = colors.inkMuted, style = MaterialTheme.typography.bodyLarge)
-            PrimaryButton(stringResource(R.string.finish_dialog_confirm), onConfirm, Modifier.fillMaxWidth())
-            GlassButton(stringResource(R.string.finish_dialog_back), onDismiss, Modifier.fillMaxWidth())
+            Text(stringResource(R.string.finish_dialog_title), color = colors.ink, style = EcoTheme.type.screenTitle)
+            Text(stringResource(R.string.finish_dialog_text), color = colors.inkMuted, style = EcoTheme.type.body)
+            PrimaryButton(stringResource(R.string.finish_dialog_confirm), onConfirm, Modifier.fillMaxWidth(), height = EcoTheme.size.control)
+            SecondaryButton(stringResource(R.string.finish_dialog_back), onDismiss, Modifier.fillMaxWidth(), height = EcoTheme.size.control)
         }
     }
 }
 
-private fun TripHeadline.fill(colors: EcoColors): Color = when (severity) {
-    TripHeadline.Severity.OK -> colors.success
-    TripHeadline.Severity.WARNING -> colors.warning
-    TripHeadline.Severity.ERROR -> colors.error
+/** The banner's fill and the text colour on it. */
+private fun TripHeadline.fill(colors: EcoColors): Pair<Color, Color> = when (severity) {
+    TripHeadline.Severity.OK -> colors.successStrong to colors.onSuccessStrong
+    TripHeadline.Severity.WARNING -> colors.warning to colors.onWarning
+    TripHeadline.Severity.ERROR -> colors.error to colors.onError
 }
 
 private fun TripHeadline.titleRes(): Int = when (this) {
@@ -228,5 +222,3 @@ private fun TripHeadline.titleRes(): Int = when (this) {
     TripHeadline.SEARCHING_GPS -> R.string.headline_searching_gps
     TripHeadline.LOCATION_OFF -> R.string.headline_location_off
 }
-
-private val TILE_HEIGHT = 112.dp

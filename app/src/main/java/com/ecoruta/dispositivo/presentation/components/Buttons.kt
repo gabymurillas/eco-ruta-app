@@ -1,14 +1,13 @@
 package com.ecoruta.dispositivo.presentation.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -18,15 +17,9 @@ import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import com.ecoruta.dispositivo.presentation.theme.ecoColors
+import com.ecoruta.dispositivo.presentation.theme.EcoTheme
 
-/** Every tappable control is at least this tall: it is pressed from the driver's seat. */
-val MinTouchHeight = 72.dp
-
-private val PillShape = RoundedCornerShape(percent = 50)
-
-/** The one main action of a screen, in deep terracotta (plain terracotta fails AA with white). */
+/** The one main action of a screen: petrol fill (DESIGN.md §4, PrimaryButton). */
 @Composable
 fun PrimaryButton(
     text: String,
@@ -34,53 +27,63 @@ fun PrimaryButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     loading: Boolean = false,
-    height: Dp = MinTouchHeight,
+    height: Dp = EcoTheme.size.primaryAction,
 ) {
-    val colors = ecoColors
+    val colors = EcoTheme.colors
     val active = enabled && !loading
+    // Faded but opaque: over a photo, a see-through button would let the picture show through.
+    val fill = if (enabled) {
+        colors.brandStrong
+    } else {
+        colors.brandStrong.copy(alpha = EcoTheme.motion.disabledAlpha).compositeOver(colors.background)
+    }
     Box(
         modifier = modifier
             .heightIn(min = height)
-            .clip(PillShape)
-            // Faded but opaque: over a photo, a see-through button would let the picture show through.
-            .background(if (enabled) colors.brandStrong else colors.brandStrong.copy(alpha = DISABLED_ALPHA).compositeOver(colors.background))
+            .clip(EcoTheme.radius.lg)
+            .background(fill)
             .clickable(enabled = active, role = Role.Button, onClick = onClick)
-            .padding(horizontal = 20.dp, vertical = 12.dp),
+            .padding(horizontal = EcoTheme.spacing.xl, vertical = EcoTheme.spacing.sm),
         contentAlignment = Alignment.Center,
     ) {
         if (loading) {
-            CircularProgressIndicator(color = colors.onBrand, strokeWidth = 3.dp, modifier = Modifier.size(28.dp))
+            CircularProgressIndicator(
+                color = colors.onBrandStrong,
+                strokeWidth = EcoTheme.border.progress,
+                modifier = Modifier.size(EcoTheme.size.progress),
+            )
         } else {
-            Text(text, color = colors.onBrand, style = MaterialTheme.typography.labelLarge, textAlign = TextAlign.Center)
+            Text(text, color = colors.onBrandStrong, style = EcoTheme.type.button, textAlign = TextAlign.Center)
         }
     }
 }
 
-/** A secondary action, on glass. */
+/** A secondary action: plain surface with a visible outline (DESIGN.md §4, SecondaryButton). */
 @Composable
-fun GlassButton(
+fun SecondaryButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    height: Dp = MinTouchHeight,
+    height: Dp = EcoTheme.size.primaryAction,
 ) {
-    val colors = ecoColors
+    val colors = EcoTheme.colors
+    val shape = EcoTheme.radius.lg
     Box(
         modifier = modifier
             .heightIn(min = height)
-            .glass(strong = true, shape = PillShape)
+            .clip(shape)
+            .background(colors.surface)
+            .border(EcoTheme.border.field, colors.borderField, shape)
             .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
-            .padding(horizontal = 20.dp, vertical = 12.dp),
+            .padding(horizontal = EcoTheme.spacing.xl, vertical = EcoTheme.spacing.sm),
         contentAlignment = Alignment.Center,
     ) {
         Text(
             text,
-            color = colors.ink.copy(alpha = if (enabled) 1f else DISABLED_ALPHA),
-            style = MaterialTheme.typography.labelLarge,
+            color = if (enabled) colors.ink else colors.inkMuted,
+            style = EcoTheme.type.button,
             textAlign = TextAlign.Center,
         )
     }
 }
-
-private const val DISABLED_ALPHA = 0.45f

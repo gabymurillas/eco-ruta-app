@@ -39,6 +39,7 @@ import com.ecoruta.dispositivo.domain.system.SyncScheduler
 import com.ecoruta.dispositivo.domain.system.TelemetryController
 import com.ecoruta.dispositivo.domain.system.TelemetryStatusStore
 import com.ecoruta.dispositivo.domain.usecase.CaptureTelemetryUseCase
+import com.ecoruta.dispositivo.domain.usecase.CompleteOnboardingUseCase
 import com.ecoruta.dispositivo.domain.usecase.FinishTripUseCase
 import com.ecoruta.dispositivo.domain.usecase.ObserveDeviceStateUseCase
 import com.ecoruta.dispositivo.domain.usecase.ObservePendingTripCloseUseCase
@@ -88,6 +89,7 @@ class AppContainer(context: Context) {
                 baseUrl = BuildConfig.SUPABASE_URL,
                 anonKey = BuildConfig.SUPABASE_ANON_KEY,
                 enableHttpLogging = BuildConfig.DEBUG,
+                useMockBackend = BuildConfig.MOCK_BACKEND,
             ),
             preferences = devicePreferences,
         )
@@ -156,12 +158,13 @@ class AppContainer(context: Context) {
         )
     }
     val resumeTelemetry by lazy { ResumeTelemetryUseCase(sessionRepository, telemetryController) }
-    val observeDeviceState by lazy { ObserveDeviceStateUseCase(sessionRepository, tripRepository) }
+    val observeDeviceState by lazy { ObserveDeviceStateUseCase(sessionRepository, tripRepository, settingsRepository) }
     val observePendingTripClose by lazy { ObservePendingTripCloseUseCase(tripRepository) }
     val observeReadiness by lazy { ObserveReadinessUseCase(connectivity, locationSettings) }
     val observeThemeMode by lazy { ObserveThemeModeUseCase(settingsRepository) }
     val setThemeMode by lazy { SetThemeModeUseCase(settingsRepository) }
     val wasPairedBefore by lazy { WasPairedBeforeUseCase(sessionRepository) }
+    val completeOnboarding by lazy { CompleteOnboardingUseCase(settingsRepository) }
     val observeTripStatus by lazy {
         ObserveTripStatusUseCase(
             statusStore = statusStore,

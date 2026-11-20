@@ -13,6 +13,7 @@ room = "2.8.5"
 datastore = "1.2.1"
 work = "2.11.2"
 playServicesLocation = "21.3.0"
+osmdroid = "6.1.20"
 retrofit = "3.0.0"
 okhttp = "5.4.0"
 kotlinxSerialization = "1.9.0"
@@ -41,6 +42,7 @@ androidx-datastore-preferences = { module = "androidx.datastore:datastore-prefer
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "work" }
 
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
+osmdroid = { module = "org.osmdroid:osmdroid-android", version.ref = "osmdroid" }
 
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofit-converter-kotlinx-serialization = { module = "com.squareup.retrofit2:converter-kotlinx-serialization", version.ref = "retrofit" }

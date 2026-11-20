@@ -14,6 +14,8 @@
     <string name="theme_auto">Automático (día y noche)</string>
     <string name="theme_light">Claro</string>
     <string name="theme_dark">Oscuro</string>
+    <string name="theme_selected">Elegido</string>
+    <string name="action_back">Volver</string>
 
     <!-- Relative time -->
     <string name="ago_seconds">hace %1$d s</string>
@@ -28,10 +30,19 @@
     <string name="permission_open_settings">Abrir ajustes</string>
 
     <!-- Welcome -->
-    <string name="welcome_place">EcoRuta · San Juan de los Morros</string>
-    <string name="welcome_title">Este equipo viaja con la unidad</string>
-    <string name="welcome_text">Va conectado al vehículo y envía su posición en cada recorrido. Para empezar, vincúlalo con el código del panel de administración.</string>
-    <string name="welcome_start">Comenzar</string>
+    <string name="onboarding_skip">Saltar</string>
+    <string name="onboarding_next">Siguiente</string>
+    <string name="onboarding_start">Vincular equipo</string>
+    <string name="onboarding_page">Paso %1$d de %2$d</string>
+    <string name="onboarding_place">San Juan de los Morros</string>
+    <string name="onboarding_1_title">¡Te damos la bienvenida!</string>
+    <string name="onboarding_1_text">Este equipo acompaña a tu unidad en cada viaje. Tú manejas, él se encarga del resto.</string>
+    <string name="onboarding_2_title">Tu ruta, en vivo</string>
+    <string name="onboarding_2_text">Los pasajeros ven dónde vas. Si se cae la señal, guardamos todo y lo enviamos después.</string>
+    <string name="map_attribution" translatable="false">© colaboradores de OpenStreetMap</string>
+    <string name="onboarding_offline_chip">Sin señal también se guarda</string>
+    <string name="onboarding_3_title">Solo falta un código</string>
+    <string name="onboarding_3_text">Pídeselo al administrador y listo, ¡a rodar!</string>
 
     <!-- Pairing -->
     <string name="pairing_title_1">Vincula</string>
@@ -93,8 +104,7 @@
     <string name="finish_dialog_back">Volver</string>
 
     <!-- Incident -->
-    <string name="incident_title_1">Reportar</string>
-    <string name="incident_title_2">incidencia</string>
+    <string name="incident_title">Reportar incidencia</string>
     <string name="incident_text">Elige qué está pasando en la ruta, escribe una observación o ambas.</string>
     <string name="incident_road_closed">Calle cerrada</string>
     <string name="incident_mechanical_failure">Falla mecánica</string>

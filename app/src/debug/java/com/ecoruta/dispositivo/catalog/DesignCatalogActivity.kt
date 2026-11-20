@@ -25,7 +25,7 @@ import com.ecoruta.dispositivo.presentation.permission.LocationPermissionScreen
 import com.ecoruta.dispositivo.presentation.theme.EcoRutaTheme
 import com.ecoruta.dispositivo.presentation.trip.TripScreen
 import com.ecoruta.dispositivo.presentation.trip.TripUiState
-import com.ecoruta.dispositivo.presentation.welcome.WelcomeScreen
+import com.ecoruta.dispositivo.presentation.onboarding.OnboardingScreen
 import java.time.Instant
 
 /**
@@ -67,7 +67,7 @@ private fun Sample(screen: String) {
     )
     val idle = IdleUiState(unitName = "Unidad 12", routeName = "Ruta Centro – UNERG")
     when (screen) {
-        "welcome" -> WelcomeScreen {}
+        "welcome" -> OnboardingScreen {}
         "permission" -> LocationPermissionScreen({}, {})
         "pairing" -> PairingScreen(PairingUiState(code = "4T9"), {}, {})
         "pairing_error" -> PairingScreen(

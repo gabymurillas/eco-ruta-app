@@ -21,7 +21,7 @@ import com.ecoruta.dispositivo.presentation.components.ThemeModeControl
 import com.ecoruta.dispositivo.presentation.navigation.AppNavHost
 import com.ecoruta.dispositivo.presentation.permission.LocationPermissionGate
 import com.ecoruta.dispositivo.presentation.theme.EcoRutaTheme
-import com.ecoruta.dispositivo.presentation.theme.ecoColors
+import com.ecoruta.dispositivo.presentation.theme.EcoTheme
 
 /**
  * The only activity. Enters kiosk mode when allowed and hosts the Compose tree; which screen
@@ -52,7 +52,7 @@ private fun AppRoot(viewModel: MainViewModel = viewModel(factory = LocalViewMode
 
     EcoRutaTheme(themeMode) {
         CompositionLocalProvider(LocalThemeModeControl provides ThemeModeControl(themeMode, viewModel::onThemeModeChange)) {
-            Box(Modifier.fillMaxSize().background(ecoColors.background)) {
+            Box(Modifier.fillMaxSize().background(EcoTheme.colors.background)) {
                 LocationPermissionGate(onGranted = viewModel::onLocationPermissionGranted) {
                     // Nothing to show until the persisted state is known; avoids flashing the pairing screen.
                     deviceState?.let { AppNavHost(it) }

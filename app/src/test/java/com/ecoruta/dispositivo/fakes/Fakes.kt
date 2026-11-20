@@ -1,5 +1,7 @@
 package com.ecoruta.dispositivo.fakes
 
+import com.ecoruta.dispositivo.domain.model.ThemeMode
+import com.ecoruta.dispositivo.domain.repository.SettingsRepository
 import com.ecoruta.dispositivo.core.Outcome
 import com.ecoruta.dispositivo.domain.model.BatteryStatus
 import com.ecoruta.dispositivo.domain.model.DeviceSession
@@ -169,5 +171,18 @@ class FakeParametersRepository(override var current: OperationParams = Operation
 
     override suspend fun refresh() {
         refreshCount++
+    }
+}
+
+class FakeSettingsRepository(onboardingSeen: Boolean = false) : SettingsRepository {
+    override val themeMode = MutableStateFlow(ThemeMode.SYSTEM)
+    override val onboardingSeen = MutableStateFlow(onboardingSeen)
+
+    override suspend fun setThemeMode(mode: ThemeMode) {
+        themeMode.value = mode
+    }
+
+    override suspend fun markOnboardingSeen() {
+        onboardingSeen.value = true
     }
 }

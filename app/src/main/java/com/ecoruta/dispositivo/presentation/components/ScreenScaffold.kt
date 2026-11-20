@@ -9,65 +9,71 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import com.ecoruta.dispositivo.R
-import com.ecoruta.dispositivo.presentation.theme.Merriweather
-import com.ecoruta.dispositivo.presentation.theme.OnPhoto
-import com.ecoruta.dispositivo.presentation.theme.PhotoNightScrim
-import com.ecoruta.dispositivo.presentation.theme.ecoColors
+import com.ecoruta.dispositivo.presentation.theme.EcoTheme
 
 /**
- * Common frame of every screen: warm background with contour lines, the top bar, a scrollable
- * body (large text settings must never cut content off) and the actions pinned at the bottom,
- * where the thumb reaches them.
+ * Common frame of every screen: the petrol [TopBar], a scrollable body (large text settings must
+ * never cut content off) and the actions pinned at the bottom, where the thumb reaches them.
  *
- * With a [photo] the background is that picture instead, dimmed in the dark theme, with the top bar
- * and system bar icons in white. It does not move when the keyboard opens: only the body does.
+ * With a [photo] the body sits on that picture instead of the plain background, dimmed in the dark
+ * theme. It does not move when the keyboard opens: only the body does.
  */
 @Composable
 fun ScreenScaffold(
     modifier: Modifier = Modifier,
     photo: Painter? = null,
+    title: String? = null,
+    onBack: (() -> Unit)? = null,
+    showThemeSelector: Boolean = false,
     bottomBar: (@Composable RowScope.() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    val colors = ecoColors
-    Box(modifier.fillMaxSize().background(colors.background)) {
-        if (photo == null) {
-            ContourBackground()
-        } else {
-            PhotoBackground(photo)
-        }
-        Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing).padding(horizontal = 20.dp)) {
-            TopBar(onPhoto = photo != null)
+    val colors = EcoTheme.colors
+    val spacing = EcoTheme.spacing
+    Column(modifier.fillMaxSize().background(colors.background)) {
+        TopBar(
+            title = title,
+            onBack = onBack,
+            action = if (showThemeSelector) ({ ThemeModeSelector() }) else null,
+        )
+        Box(Modifier.weight(1f).fillMaxWidth()) {
+            if (photo != null) PhotoBackground(photo)
             Column(
-                modifier = Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp),
-                content = content,
-            )
-            if (bottomBar != null) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    content = bottomBar,
+                Modifier
+                    .fillMaxSize()
+                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom))
+                    .padding(horizontal = spacing.xl),
+            ) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                        .padding(vertical = spacing.lg),
+                    verticalArrangement = Arrangement.spacedBy(spacing.md),
+                    content = content,
                 )
+                if (bottomBar != null) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(top = spacing.xs, bottom = spacing.lg),
+                        horizontalArrangement = Arrangement.spacedBy(spacing.sm),
+                        content = bottomBar,
+                    )
+                }
             }
         }
     }
@@ -83,24 +89,5 @@ private fun PhotoBackground(photo: Painter) {
         alignment = Alignment.BottomCenter,
         modifier = Modifier.fillMaxSize(),
     )
-    if (ecoColors.isDark) Box(Modifier.fillMaxSize().background(PhotoNightScrim))
-}
-
-/** Brand and theme selector. Over a photo the wordmark turns white: terracotta does not read on it. */
-@Composable
-private fun TopBar(onPhoto: Boolean) {
-    val colors = ecoColors
-    val brandColor = if (onPhoto) OnPhoto else colors.brand
-    Row(Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-        // Brand colour as identity only: the wordmark, never a status.
-        Box(Modifier.size(10.dp).background(brandColor, RoundedCornerShape(percent = 50)))
-        Text(
-            stringResource(R.string.brand_name),
-            fontFamily = Merriweather,
-            color = brandColor,
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(start = 8.dp).weight(1f),
-        )
-        ThemeModeSelector()
-    }
+    Box(Modifier.fillMaxSize().background(EcoTheme.colors.photoScrim))
 }

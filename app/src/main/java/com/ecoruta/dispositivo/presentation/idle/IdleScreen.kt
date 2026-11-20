@@ -3,15 +3,11 @@ package com.ecoruta.dispositivo.presentation.idle
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ecoruta.dispositivo.R
@@ -21,11 +17,10 @@ import com.ecoruta.dispositivo.presentation.components.NoticeBanner
 import com.ecoruta.dispositivo.presentation.components.PhotoTitle
 import com.ecoruta.dispositivo.presentation.components.PrimaryButton
 import com.ecoruta.dispositivo.presentation.components.ScreenScaffold
+import com.ecoruta.dispositivo.presentation.components.StatusBadge
 import com.ecoruta.dispositivo.presentation.components.StatusDot
 import com.ecoruta.dispositivo.presentation.components.Tone
-import com.ecoruta.dispositivo.presentation.theme.OnPhoto
-import com.ecoruta.dispositivo.presentation.theme.PhotoTextShadow
-import com.ecoruta.dispositivo.presentation.theme.ecoColors
+import com.ecoruta.dispositivo.presentation.theme.EcoTheme
 
 @Composable
 fun IdleRoute(viewModel: IdleViewModel = viewModel(factory = LocalViewModelFactory.current)) {
@@ -35,33 +30,25 @@ fun IdleRoute(viewModel: IdleViewModel = viewModel(factory = LocalViewModelFacto
 
 @Composable
 fun IdleScreen(state: IdleUiState, onStartTrip: () -> Unit) {
-    val colors = ecoColors
+    val spacing = EcoTheme.spacing
     ScreenScaffold(
         photo = painterResource(R.drawable.welcome_photo),
+        showThemeSelector = true,
         bottomBar = {
             PrimaryButton(
                 stringResource(R.string.idle_start_trip),
                 onStartTrip,
                 Modifier.weight(1f),
                 loading = state.isStarting,
-                height = 84.dp,
             )
         },
     ) {
         // Neutral, not amber: waiting is the normal state, not something to look at.
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            StatusDot(OnPhoto)
-            Text(
-                stringResource(R.string.idle_status),
-                color = OnPhoto,
-                style = MaterialTheme.typography.labelMedium.copy(shadow = PhotoTextShadow),
-            )
-        }
+        StatusBadge(stringResource(R.string.idle_status), EcoTheme.colors.inkMuted)
         PhotoTitle(stringResource(R.string.idle_title_1), stringResource(R.string.idle_title_2))
-        // Strong glass: the tiles sit on the photo, and what they say must read at a glance.
-        InfoTile(label = stringResource(R.string.idle_route), value = state.routeName, modifier = Modifier.fillMaxWidth(), strong = true)
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            InfoTile(stringResource(R.string.idle_unit), state.unitName, Modifier.weight(1f), strong = true)
+        InfoTile(label = stringResource(R.string.idle_route), value = state.routeName, modifier = Modifier.fillMaxWidth())
+        Row(horizontalArrangement = Arrangement.spacedBy(spacing.sm)) {
+            InfoTile(stringResource(R.string.idle_unit), state.unitName, Modifier.weight(1f))
             ReadinessTile(state, Modifier.weight(1f))
         }
         if (!state.readiness.isLocationEnabled) NoticeBanner(stringResource(R.string.idle_location_off), Tone.ERROR)
@@ -72,14 +59,12 @@ fun IdleScreen(state: IdleUiState, onStartTrip: () -> Unit) {
 
 @Composable
 private fun ReadinessTile(state: IdleUiState, modifier: Modifier) {
-    val colors = ecoColors
+    val colors = EcoTheme.colors
     val online = state.readiness.isOnline
     InfoTile(
         label = stringResource(R.string.tile_connection),
         value = stringResource(if (online) R.string.value_online else R.string.value_offline),
         modifier = modifier,
-        strong = true,
-        valueColor = if (online) colors.ink else colors.warningInk,
         indicator = { StatusDot(if (online) colors.success else colors.warning) },
     )
 }

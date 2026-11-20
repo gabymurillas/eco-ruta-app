@@ -11,4 +11,8 @@ class SettingsRepositoryImpl(private val preferences: DevicePreferences) : Setti
     override val themeMode: Flow<ThemeMode> = preferences.themeMode
 
     override suspend fun setThemeMode(mode: ThemeMode) = preferences.setThemeMode(mode)
+
+    override val onboardingSeen: Flow<Boolean> = preferences.onboardingSeen
+
+    override suspend fun markOnboardingSeen() = preferences.setOnboardingSeen()
 }

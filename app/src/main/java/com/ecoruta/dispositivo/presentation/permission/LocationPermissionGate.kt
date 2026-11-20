@@ -5,7 +5,6 @@ import android.content.Intent
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -20,11 +19,10 @@ import androidx.core.net.toUri
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.ecoruta.dispositivo.R
 import com.ecoruta.dispositivo.platform.LocationPermission
-import com.ecoruta.dispositivo.presentation.components.GlassButton
-import com.ecoruta.dispositivo.presentation.components.HighlightTitle
 import com.ecoruta.dispositivo.presentation.components.PrimaryButton
 import com.ecoruta.dispositivo.presentation.components.ScreenScaffold
-import com.ecoruta.dispositivo.presentation.theme.ecoColors
+import com.ecoruta.dispositivo.presentation.components.SecondaryButton
+import com.ecoruta.dispositivo.presentation.theme.EcoTheme
 
 /**
  * Shows [content] only once precise location is granted, and reports it through [onGranted].
@@ -66,12 +64,16 @@ fun LocationPermissionScreen(onRequest: () -> Unit, onOpenSettings: () -> Unit) 
     ScreenScaffold(
         bottomBar = {
             // After "don't ask again" the system dialog no longer shows; settings is the only way back.
-            GlassButton(stringResource(R.string.permission_open_settings), onOpenSettings, Modifier.weight(1f))
+            SecondaryButton(stringResource(R.string.permission_open_settings), onOpenSettings, Modifier.weight(1f))
             PrimaryButton(stringResource(R.string.permission_request), onRequest, Modifier.weight(1f))
         },
     ) {
-        HighlightTitle(stringResource(R.string.permission_title_1), stringResource(R.string.permission_title_2))
-        Text(stringResource(R.string.permission_text), color = ecoColors.inkMuted, style = MaterialTheme.typography.bodyLarge)
+        Text(
+            stringResource(R.string.permission_title_1) + "\n" + stringResource(R.string.permission_title_2),
+            color = EcoTheme.colors.ink,
+            style = EcoTheme.type.display,
+        )
+        Text(stringResource(R.string.permission_text), color = EcoTheme.colors.inkMuted, style = EcoTheme.type.body)
     }
 }
 

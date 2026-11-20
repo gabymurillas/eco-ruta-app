@@ -7,6 +7,7 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
@@ -18,6 +19,7 @@ import kotlinx.coroutines.delay
 import java.time.LocalTime
 import kotlin.time.Duration.Companion.minutes
 
+/** Provides every EcoRuta token; screens and components read them through [EcoTheme]. */
 @Composable
 fun EcoRutaTheme(mode: ThemeMode = ThemeMode.SYSTEM, content: @Composable () -> Unit) {
     val dark = when (mode) {
@@ -28,14 +30,41 @@ fun EcoRutaTheme(mode: ThemeMode = ThemeMode.SYSTEM, content: @Composable () -> 
     }
     val colors = if (dark) DarkEcoColors else LightEcoColors
     SystemBarIcons(dark)
-    CompositionLocalProvider(LocalEcoColors provides colors) {
-        MaterialTheme(colorScheme = colors.toMaterial(), typography = EcoTypography, content = content)
+    CompositionLocalProvider(
+        LocalEcoColors provides colors,
+        LocalEcoType provides DefaultEcoType,
+        LocalEcoSpacing provides EcoSpacing(),
+        LocalEcoRadius provides EcoRadius(),
+        LocalEcoSize provides EcoSize(),
+        LocalEcoBorder provides EcoBorder(),
+        LocalEcoMotion provides EcoMotion(),
+    ) {
+        MaterialTheme(colorScheme = colors.toMaterial(), typography = DefaultEcoType.toMaterial(), content = content)
     }
+}
+
+/** The tokens in force (DESIGN.md §2): the only way a screen or component gets a value. */
+object EcoTheme {
+    val colors: EcoColors
+        @Composable @ReadOnlyComposable get() = LocalEcoColors.current
+    val type: EcoType
+        @Composable @ReadOnlyComposable get() = LocalEcoType.current
+    val spacing: EcoSpacing
+        @Composable @ReadOnlyComposable get() = LocalEcoSpacing.current
+    val radius: EcoRadius
+        @Composable @ReadOnlyComposable get() = LocalEcoRadius.current
+    val size: EcoSize
+        @Composable @ReadOnlyComposable get() = LocalEcoSize.current
+    val border: EcoBorder
+        @Composable @ReadOnlyComposable get() = LocalEcoBorder.current
+    val motion: EcoMotion
+        @Composable @ReadOnlyComposable get() = LocalEcoMotion.current
 }
 
 /**
  * The app may be dark while the phone is light (or the reverse) when the theme is chosen on
- * screen, so the status bar icons follow the app, not the system.
+ * screen, so the status bar icons follow the app, not the system. The header band is dark in both
+ * themes, so its icons stay light either way.
  */
 @Composable
 private fun SystemBarIcons(dark: Boolean) {
@@ -44,7 +73,7 @@ private fun SystemBarIcons(dark: Boolean) {
     val window = (view.context as? Activity)?.window ?: return
     SideEffect {
         WindowCompat.getInsetsController(window, view).apply {
-            isAppearanceLightStatusBars = !dark
+            isAppearanceLightStatusBars = false
             isAppearanceLightNavigationBars = !dark
         }
     }
@@ -62,19 +91,17 @@ private fun isNightNow(): Boolean {
     return night
 }
 
-/** Material components (text fields, dialogs) pick these up; the screens use [EcoColors] directly. */
+/** Material components (text fields, menus, dialogs) pick these up. */
 private fun EcoColors.toMaterial() = if (isDark) {
     darkColorScheme(
-        primary = brandStrong, onPrimary = onBrand, background = background, onBackground = ink,
-        surface = background, onSurface = ink, onSurfaceVariant = inkMuted, outline = border, error = error,
+        primary = brandStrong, onPrimary = onBrandStrong, background = background, onBackground = ink,
+        surface = surface, onSurface = ink, onSurfaceVariant = inkMuted, outline = borderField, error = error,
+        surfaceContainer = surface,
     )
 } else {
     lightColorScheme(
-        primary = brandStrong, onPrimary = onBrand, background = background, onBackground = ink,
-        surface = background, onSurface = ink, onSurfaceVariant = inkMuted, outline = border, error = error,
+        primary = brandStrong, onPrimary = onBrandStrong, background = background, onBackground = ink,
+        surface = surface, onSurface = ink, onSurfaceVariant = inkMuted, outline = borderField, error = error,
+        surfaceContainer = surface,
     )
 }
-
-/** Shorthand for the EcoRuta palette in force. */
-val ecoColors: EcoColors
-    @Composable get() = LocalEcoColors.current

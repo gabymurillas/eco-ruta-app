@@ -23,6 +23,7 @@ transmite su posición mientras la ruta está en servicio. Ver la especificació
 | Acción                        | Comando                                                |
 |-------------------------------|--------------------------------------------------------|
 | Compilar APK debug            | `.\gradlew.bat assembleDebug`                          |
+| APK demo (backend simulado)   | `.\gradlew.bat assembleDemo`                           |
 | Instalar en dispositivo/emu   | `.\gradlew.bat installDebug`                           |
 | Pruebas unitarias             | `.\gradlew.bat testDebugUnitTest`                      |
 | Lint                          | `.\gradlew.bat lintDebug`                              |
@@ -127,30 +128,39 @@ tiene nombre propio y se prueba sola.
 
 ## Interfaz
 
-Sigue el sistema de diseño de EcoRuta (CLAUDE.md del backend): fondo crema, terracota solo para la
-identidad y la acción principal, verde / ámbar / rojo solo para estados, titulares en Merriweather y
-texto en Source Sans 3. Las fuentes van dentro del APK (licencia OFL en `assets/licenses/`): un equipo
-puede arrancar por primera vez sin red. Tiene tema oscuro con los mismos tonos.
+El diseño completo está en [DESIGN.md](DESIGN.md): principios, tokens, componentes y pantallas. Usa la
+identidad del **panel admin de la web**: barra superior azul petróleo, turquesa como acento, fondo gris
+claro y tarjetas blancas planas con borde, sin cristal ni sombras. La fuente es Figtree, que va dentro
+del APK (licencia OFL en `assets/licenses/`) para que un equipo pueda arrancar por primera vez sin red.
+Tiene tema oscuro, el mismo del panel.
 
-- **Pensada para el asiento del conductor:** controles de 72 dp o más, etiquetas de 16 sp, valores de
-  32 sp. En "En viaje" un banner sólido resume el peor estado (ubicación apagada > sin GPS > sin red >
-  GPS débil > transmitiendo); color, punto y texto dicen lo mismo, nunca solo el color.
-- **Cristal ("liquid glass"), excepción consciente al sistema**, que pide superficies planas: lo
-  decidió la autora para esta app. Es translúcido con borde y brillo, sin desenfoque real (solo existe
-  desde Android 12 y cuesta fotogramas en teléfonos baratos). Los estados críticos nunca van sobre
-  cristal: usan relleno sólido para mantener el contraste al sol.
-- **Bienvenida (solo la primera vez):** con `DeviceState.Unpaired(firstTime = true)`, es decir, si el
-  equipo nunca se vinculó. Foto de los Morros a pantalla completa y el texto al pie, en blanco y sin
-  recuadro; el único degradado funde la foto con el fondo oscuro detrás del texto. Se ve igual en
-  ambos temas. "Comenzar" lleva a la vinculación. Si la sesión se revocó, va directo a vinculación
-  con su aviso. Foto en `drawable-nodpi`, JPEG 1080×2400 (~130 KB).
-- **Vinculación sobre la misma foto** (`ScreenScaffold(photo = …)`): título e instrucciones en blanco
-  con una sombra suave, sin recuadro ni degradado; el código justo debajo, en cristal. En oscuro la
-  foto se atenúa un 40 %. La foto no se mueve al abrir el teclado (`adjustResize`): solo el contenido.
-- **Tema:** selector en la esquina superior derecha: igual que el teléfono (por defecto), automático
-  por hora (oscuro de 18:30 a 06:00, sin red ni ubicación), claro u oscuro.
+- **Todo sale de tokens.** `presentation/theme/` define colores, tipografía, espaciado, radios,
+  tamaños, bordes y movimiento; pantallas y componentes los leen con `EcoTheme.*` y nunca escriben un
+  color, un `dp` o un `sp` propio.
+- **Pensada para el asiento del conductor:** acción principal de 84 dp, controles de 56 dp o más,
+  etiquetas de 16 sp, valores de 28 sp. En "En recorrido" un banner sólido resume el peor estado
+  (ubicación apagada > sin GPS > sin red > GPS débil > transmitiendo); color, punto y texto dicen lo
+  mismo, nunca solo el color. Los avisos van sobre relleno sólido suave con ícono.
+- **Carrusel de bienvenida (una sola vez por teléfono):** con `DeviceState.Unpaired(firstTime = true)`,
+  es decir, si nunca se vio el carrusel y el equipo nunca se vinculó. Cuatro páginas sobre fondo
+  petróleo: la foto de los Morros, una ruta animada con el bus transmitiendo, la cola de posiciones
+  sin señal y el código de vinculación escribiéndose solo. Las ilustraciones se dibujan con `Canvas`
+  y se desplazan con paralaje. "Saltar" o "Vincular equipo" lo marcan como visto
+  (`CompleteOnboardingUseCase`) y la navegación pasa sola a la vinculación. Si la sesión se revocó,
+  va directo a vinculación con su aviso.
+- **Vinculación y espera sobre la misma foto** (`ScreenScaffold(photo = …)`), bajo la barra petróleo.
+  En oscuro la foto se atenúa. La foto no se mueve al abrir el teclado (`adjustResize`): solo el contenido.
+- **Tema:** selector en la barra superior de Vinculación y En espera (no en "En recorrido", donde el
+  conductor maneja): igual que el teléfono (por defecto), automático por hora (oscuro de 18:30 a 06:00,
+  sin red ni ubicación), claro u oscuro.
 
-**Catálogo de diseño (solo debug).** Cada pantalla en cada estado, con datos de ejemplo, sin vincular
+**APK demo.** La variante `demo` (`assembleDemo`, se instala junto a la app real como
+`com.ecoruta.dispositivo.demo`) responde todas las llamadas al backend con datos de ejemplo
+(`MockBackendInterceptor`), para recorrer todas las pantallas sin código ni red: acepta cualquier
+código de 5 caracteres y `ERROR` simula un código vencido. El resto de la app corre su lógica real
+(GPS incluido). Trae también el catálogo de diseño.
+
+**Catálogo de diseño (solo debug y demo).** Cada pantalla en cada estado, con datos de ejemplo, sin vincular
 el equipo; sirve para revisar el diseño y para las capturas de la tesis:
 
 ```bash

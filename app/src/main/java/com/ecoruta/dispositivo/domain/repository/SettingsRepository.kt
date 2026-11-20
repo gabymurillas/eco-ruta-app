@@ -8,4 +8,9 @@ interface SettingsRepository {
     val themeMode: Flow<ThemeMode>
 
     suspend fun setThemeMode(mode: ThemeMode)
+
+    /** True once the welcome carousel has been shown on this phone. */
+    val onboardingSeen: Flow<Boolean>
+
+    suspend fun markOnboardingSeen()
 }
