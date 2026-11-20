@@ -9,6 +9,8 @@ import com.ecoruta.dispositivo.domain.model.Readiness
 import com.ecoruta.dispositivo.domain.usecase.ObserveDeviceStateUseCase
 import com.ecoruta.dispositivo.domain.usecase.ObservePendingTripCloseUseCase
 import com.ecoruta.dispositivo.domain.usecase.ObserveReadinessUseCase
+import com.ecoruta.dispositivo.domain.usecase.ObserveRouteSignUseCase
+import com.ecoruta.dispositivo.domain.usecase.RefreshRouteSignsUseCase
 import com.ecoruta.dispositivo.domain.usecase.StartTripUseCase
 import com.ecoruta.dispositivo.presentation.common.toMessageRes
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,6 +24,8 @@ import kotlinx.coroutines.launch
 data class IdleUiState(
     val unitName: String = "",
     val routeName: String = "",
+    /** The route name the web shows instead of [routeName], chosen by the driver; null: the usual. */
+    val signName: String? = null,
     /** Whether the unit could transmit right now, so the driver does not set off blind. */
     val readiness: Readiness = Readiness(isOnline = true, isLocationEnabled = true),
     /** The previous trip was finished offline and its close is still waiting to be sent. */
@@ -34,6 +38,8 @@ class IdleViewModel(
     observeDeviceState: ObserveDeviceStateUseCase,
     observePendingTripClose: ObservePendingTripCloseUseCase,
     observeReadiness: ObserveReadinessUseCase,
+    observeRouteSign: ObserveRouteSignUseCase,
+    refreshSigns: RefreshRouteSignsUseCase,
     private val startTrip: StartTripUseCase,
 ) : ViewModel() {
 
@@ -54,6 +60,11 @@ class IdleViewModel(
         viewModelScope.launch {
             observeReadiness().collect { readiness -> _uiState.update { it.copy(readiness = readiness) } }
         }
+        viewModelScope.launch {
+            observeRouteSign().collect { sign -> _uiState.update { it.copy(signName = sign?.name) } }
+        }
+        // Best effort: catches a name the admin withdrew while the unit was off. Offline, the cache stays.
+        viewModelScope.launch { refreshSigns() }
     }
 
     fun onStartTrip() {

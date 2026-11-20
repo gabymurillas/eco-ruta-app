@@ -126,6 +126,25 @@ tiene nombre propio y se prueba sola.
 9. Si el servidor rechaza el token de renovación, la sesión se borra y el equipo vuelve a la pantalla de
    vinculación. Revincular a la misma unidad conserva su viaje y su cola; a otra unidad, los descarta.
 
+## Cambio de ruta (letreros)
+
+Un bus puede hacer distintas rutas según adónde lo manden. El conductor elige en la app, desde un
+selector, el nombre de la ruta que hará; la web (admin y ciudadano) lo muestra junto a la ruta de la
+unidad. Solo cambia el nombre que se muestra: trazado, paradas y ETA siguen siendo los de la unidad.
+
+- **Opciones por unidad, definidas por el admin** en el panel. La app las pide con la RPC
+  `letreros_disponibles()` y las guarda en DataStore, así el selector abre aunque no haya señal.
+- **Cambiar** llama a `cambiar_letrero(p_letrero_id)` (`null` = ruta normal). Exige red y nunca queda
+  en cola: mostrado tarde, la web anunciaría una ruta que el bus ya no hace. Una opción que el admin
+  retiró responde 400 (`AppError.RouteSignNotAllowed`) y la lista se recarga.
+- **En espera y en recorrido.** En recorrido el botón se bloquea con la unidad en movimiento
+  (`MotionDetector`: se mueve desde `movimiento_umbral_kmh` y se considera detenida tras 4 s por
+  debajo; sin GPS reciente no bloquea) y el motivo se dice debajo.
+- **Al finalizar vuelve a la ruta normal**: en el teléfono al instante (`FinishTripUseCase`) y en el
+  servidor cuando llega el cierre. Mientras un cierre está pendiente, la app no adopta el nombre que
+  el servidor aún tiene del recorrido anterior.
+- Backend: `sql/21_letreros.sql` del repositorio web.
+
 ## Interfaz
 
 El diseño completo está en [DESIGN.md](DESIGN.md): principios, tokens, componentes y pantallas. Usa la

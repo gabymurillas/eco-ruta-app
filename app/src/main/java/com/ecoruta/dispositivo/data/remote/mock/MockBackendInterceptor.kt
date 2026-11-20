@@ -23,6 +23,9 @@ class MockBackendInterceptor : Interceptor {
 
     @Volatile private var openTripId: String? = null
 
+    /** The route name in force; null is the unit's usual route. */
+    @Volatile private var signId: String? = null
+
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
         Thread.sleep(LATENCY_MS) // Long enough to see the loading states.
@@ -40,8 +43,12 @@ class MockBackendInterceptor : Interceptor {
             path.endsWith("/rest/v1/viajes") && method == "GET" -> respond(request, 200, openTripsJson())
             path.endsWith("/rest/v1/viajes") && method == "PATCH" -> {
                 openTripId = null
+                signId = null // The trip closed: back to the usual route, as the backend trigger does.
                 respond(request, 204, "")
             }
+            path.endsWith("/rest/v1/rpc/letreros_disponibles") ->
+                respond(request, 200, """{"actual":${signJson(signId)},"opciones":[${SIGNS.joinToString(",") { signJson(it.first) }}]}""")
+            path.endsWith("/rest/v1/rpc/cambiar_letrero") -> changeSign(request)
             path.endsWith("/rest/v1/rpc/registrar_salud_del_dispositivo") -> respond(request, 204, "")
             path.endsWith("/rest/v1/incidencias") -> respond(request, 201, "")
             path.endsWith("/rest/v1/parametros") -> respond(request, 200, "[]")
@@ -60,6 +67,18 @@ class MockBackendInterceptor : Interceptor {
             """{"unidad":{"id":"$UNIT_ID","nombre":"Unidad 12","ruta":"Centro – UNERG"},"sesion":${tokens()}}""",
         )
     }
+
+    private fun changeSign(request: Request): Response {
+        val requested = Regex("\"p_letrero_id\"\\s*:\\s*\"([^\"]+)\"").find(bodyOf(request))?.groupValues?.get(1)
+        if (requested != null && SIGNS.none { it.first == requested }) {
+            return respond(request, 400, """{"code":"letrero_no_permitido","message":"Ese letrero no está asignado a la unidad."}""")
+        }
+        signId = requested
+        return respond(request, 200, """{"actual":${signJson(requested)}}""")
+    }
+
+    private fun signJson(id: String?): String =
+        SIGNS.firstOrNull { it.first == id }?.let { (signId, name) -> """{"id":"$signId","nombre":"$name"}""" } ?: "null"
 
     private fun openTrip(request: Request): Response {
         if (openTripId != null) return respond(request, 409, """{"code":"23505","message":"Ya hay un viaje abierto."}""")
@@ -90,5 +109,13 @@ class MockBackendInterceptor : Interceptor {
         const val UNIT_ID = "unidad-demo"
         const val ROUTE_ID = "ruta-demo"
         val JSON = "application/json".toMediaType()
+
+        /** The route names the demo unit may show, as the admin would have assigned them. */
+        val SIGNS = listOf(
+            "letrero-1" to "Terminal – Villa Olímpica",
+            "letrero-2" to "Centro – Los Laureles",
+            "letrero-3" to "Terminal – Hospital",
+            "letrero-4" to "La Morera – Centro",
+        )
     }
 }

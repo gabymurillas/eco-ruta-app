@@ -9,6 +9,9 @@ import com.ecoruta.dispositivo.data.remote.dto.RegisterPositionsRequestDto
 import com.ecoruta.dispositivo.data.remote.dto.RegisterPositionsResponseDto
 import com.ecoruta.dispositivo.data.remote.dto.TripDto
 import com.ecoruta.dispositivo.data.remote.dto.UnitRouteDto
+import com.ecoruta.dispositivo.data.remote.dto.ChangedRouteSignDto
+import com.ecoruta.dispositivo.data.remote.dto.RouteSignsDto
+import kotlinx.serialization.json.JsonObject
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Headers
@@ -55,6 +58,17 @@ interface SupabaseRestApi {
 
     @GET("rest/v1/parametros?select=clave,valor")
     suspend fun getParameters(): List<ParameterDto>
+
+    /** The route names the admin allows for this unit and the one in force. */
+    @POST("rest/v1/rpc/letreros_disponibles")
+    suspend fun getRouteSigns(@Body body: JsonObject): RouteSignsDto
+
+    /**
+     * Shows another route name, or the usual route with `p_letrero_id: null`. The body is built by
+     * hand because the shared JSON drops nulls, and here null is the request itself.
+     */
+    @POST("rest/v1/rpc/cambiar_letrero")
+    suspend fun changeRouteSign(@Body body: JsonObject): ChangedRouteSignDto
 }
 
 /** PostgREST equality filter, e.g. `?id=eq.<uuid>`. */

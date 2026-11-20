@@ -11,6 +11,7 @@ import com.ecoruta.dispositivo.domain.model.DeviceState
 import com.ecoruta.dispositivo.presentation.idle.IdleRoute
 import com.ecoruta.dispositivo.presentation.incident.IncidentRoute
 import com.ecoruta.dispositivo.presentation.pairing.PairingRoute
+import com.ecoruta.dispositivo.presentation.routepicker.RoutePickerRoute
 import com.ecoruta.dispositivo.presentation.trip.TripRoute
 import com.ecoruta.dispositivo.presentation.onboarding.OnboardingRoute
 
@@ -27,8 +28,14 @@ fun AppNavHost(deviceState: DeviceState) {
     NavHost(navController = navController, startDestination = startDestination) {
         composable<Route.Welcome> { OnboardingRoute() }
         composable<Route.Pairing> { PairingRoute() }
-        composable<Route.Idle> { IdleRoute() }
-        composable<Route.Trip> { TripRoute(onReportIncident = { navController.navigate(Route.Incident) }) }
+        composable<Route.Idle> { IdleRoute(onChangeRoute = { navController.navigate(Route.RoutePicker) }) }
+        composable<Route.Trip> {
+            TripRoute(
+                onReportIncident = { navController.navigate(Route.Incident) },
+                onChangeRoute = { navController.navigate(Route.RoutePicker) },
+            )
+        }
+        composable<Route.RoutePicker> { RoutePickerRoute(onDone = { navController.popBackStack() }) }
         composable<Route.Incident> {
             IncidentRoute(onDone = { navController.popBackStack() })
         }

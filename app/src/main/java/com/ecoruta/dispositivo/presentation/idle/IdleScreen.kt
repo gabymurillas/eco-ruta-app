@@ -17,19 +17,23 @@ import com.ecoruta.dispositivo.presentation.components.NoticeBanner
 import com.ecoruta.dispositivo.presentation.components.PhotoTitle
 import com.ecoruta.dispositivo.presentation.components.PrimaryButton
 import com.ecoruta.dispositivo.presentation.components.ScreenScaffold
+import com.ecoruta.dispositivo.presentation.components.UnitRouteCard
 import com.ecoruta.dispositivo.presentation.components.StatusBadge
 import com.ecoruta.dispositivo.presentation.components.StatusDot
 import com.ecoruta.dispositivo.presentation.components.Tone
 import com.ecoruta.dispositivo.presentation.theme.EcoTheme
 
 @Composable
-fun IdleRoute(viewModel: IdleViewModel = viewModel(factory = LocalViewModelFactory.current)) {
+fun IdleRoute(
+    onChangeRoute: () -> Unit,
+    viewModel: IdleViewModel = viewModel(factory = LocalViewModelFactory.current),
+) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    IdleScreen(state, viewModel::onStartTrip)
+    IdleScreen(state, viewModel::onStartTrip, onChangeRoute)
 }
 
 @Composable
-fun IdleScreen(state: IdleUiState, onStartTrip: () -> Unit) {
+fun IdleScreen(state: IdleUiState, onStartTrip: () -> Unit, onChangeRoute: () -> Unit) {
     val spacing = EcoTheme.spacing
     ScreenScaffold(
         photo = painterResource(R.drawable.welcome_photo),
@@ -46,7 +50,8 @@ fun IdleScreen(state: IdleUiState, onStartTrip: () -> Unit) {
         // Neutral, not amber: waiting is the normal state, not something to look at.
         StatusBadge(stringResource(R.string.idle_status), EcoTheme.colors.inkMuted)
         PhotoTitle(stringResource(R.string.idle_title_1), stringResource(R.string.idle_title_2))
-        InfoTile(label = stringResource(R.string.idle_route), value = state.routeName, modifier = Modifier.fillMaxWidth())
+        // No GPS runs while waiting, so the change is never locked here: the unit is parked.
+        UnitRouteCard(state.routeName, state.signName, onChangeRoute, Modifier.fillMaxWidth(), large = true)
         Row(horizontalArrangement = Arrangement.spacedBy(spacing.sm)) {
             InfoTile(stringResource(R.string.idle_unit), state.unitName, Modifier.weight(1f))
             ReadinessTile(state, Modifier.weight(1f))

@@ -56,7 +56,6 @@
     <string name="idle_status">En espera</string>
     <string name="idle_title_1">Listo para</string>
     <string name="idle_title_2">salir a ruta</string>
-    <string name="idle_route">Ruta</string>
     <string name="idle_unit">Unidad</string>
     <string name="idle_start_trip">Iniciar recorrido</string>
     <string name="idle_pending_close">El cierre del recorrido anterior se enviará al volver la conexión. Para iniciar otro hace falta conexión.</string>
@@ -127,5 +126,22 @@
     <string name="error_no_active_trip">No hay un recorrido activo.</string>
     <string name="error_no_route_assigned">Esta unidad no tiene una ruta asignada.</string>
     <string name="error_location_unavailable">No hay posición GPS reciente. Espera a que el GPS tenga señal.</string>
+    <string name="route_label">Ruta</string>
+    <string name="route_current_label">Ruta actual</string>
+    <string name="route_normal_detail">Normal: %1$s</string>
+    <string name="route_change">Cambiar</string>
+    <string name="route_change_description">Cambiar la ruta, ahora %1$s</string>
+    <string name="route_blocked_moving">Detén la unidad para cambiar la ruta</string>
+    <string name="route_picker_title">Elegir ruta</string>
+    <string name="route_picker_text">La ruta que elijas la verán el admin y los pasajeros en la web.</string>
+    <string name="route_picker_normal">Ruta normal</string>
+    <string name="route_picker_confirm">Confirmar</string>
+    <string name="route_picker_cancel">Cancelar</string>
+    <string name="route_picker_offline">Hace falta conexión para cambiar la ruta.</string>
+    <string name="route_picker_stale">Sin conexión: la lista puede no estar al día.</string>
+    <string name="route_picker_empty">El administrador todavía no asignó otras rutas a esta unidad.</string>
+    <string name="route_picker_loading">Cargando rutas…</string>
+    <string name="route_changed">Ruta cambiada</string>
+    <string name="error_route_sign_not_allowed">Esa ruta ya no está disponible para esta unidad. Elige otra de la lista.</string>
     <string name="error_unexpected">Ocurrió un error inesperado.</string>
 </resources>

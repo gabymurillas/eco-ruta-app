@@ -22,6 +22,9 @@ sealed interface AppError {
     data object NoActiveTrip : AppError
     data object NoRouteAssigned : AppError
     data object LocationUnavailable : AppError
+
+    /** The admin no longer allows this route name for the unit. */
+    data object RouteSignNotAllowed : AppError
 }
 
 /** Worth trying again later: the cause is transient, not a rejected request. */

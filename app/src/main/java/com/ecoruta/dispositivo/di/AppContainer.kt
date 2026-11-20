@@ -14,6 +14,7 @@ import com.ecoruta.dispositivo.data.remote.UnitRouteResolver
 import com.ecoruta.dispositivo.data.repository.DeviceStatusRepositoryImpl
 import com.ecoruta.dispositivo.data.repository.IncidentRepositoryImpl
 import com.ecoruta.dispositivo.data.repository.ParametersRepositoryImpl
+import com.ecoruta.dispositivo.data.repository.RouteSignRepositoryImpl
 import com.ecoruta.dispositivo.data.repository.SessionRepositoryImpl
 import com.ecoruta.dispositivo.data.repository.SettingsRepositoryImpl
 import com.ecoruta.dispositivo.data.repository.TelemetryRepositoryImpl
@@ -23,10 +24,12 @@ import com.ecoruta.dispositivo.data.system.AndroidConnectivityObserver
 import com.ecoruta.dispositivo.data.system.AndroidLocationSettingsObserver
 import com.ecoruta.dispositivo.data.system.FusedLocationSource
 import com.ecoruta.dispositivo.data.system.InMemoryTelemetryStatusStore
+import com.ecoruta.dispositivo.domain.policy.MotionDetector
 import com.ecoruta.dispositivo.domain.policy.TransmissionPolicy
 import com.ecoruta.dispositivo.domain.repository.DeviceStatusRepository
 import com.ecoruta.dispositivo.domain.repository.IncidentRepository
 import com.ecoruta.dispositivo.domain.repository.ParametersRepository
+import com.ecoruta.dispositivo.domain.repository.RouteSignRepository
 import com.ecoruta.dispositivo.domain.repository.SessionRepository
 import com.ecoruta.dispositivo.domain.repository.SettingsRepository
 import com.ecoruta.dispositivo.domain.repository.TelemetryRepository
@@ -39,14 +42,18 @@ import com.ecoruta.dispositivo.domain.system.SyncScheduler
 import com.ecoruta.dispositivo.domain.system.TelemetryController
 import com.ecoruta.dispositivo.domain.system.TelemetryStatusStore
 import com.ecoruta.dispositivo.domain.usecase.CaptureTelemetryUseCase
+import com.ecoruta.dispositivo.domain.usecase.ChangeRouteSignUseCase
 import com.ecoruta.dispositivo.domain.usecase.CompleteOnboardingUseCase
 import com.ecoruta.dispositivo.domain.usecase.FinishTripUseCase
 import com.ecoruta.dispositivo.domain.usecase.ObserveDeviceStateUseCase
+import com.ecoruta.dispositivo.domain.usecase.ObserveMotionUseCase
 import com.ecoruta.dispositivo.domain.usecase.ObservePendingTripCloseUseCase
 import com.ecoruta.dispositivo.domain.usecase.ObserveReadinessUseCase
+import com.ecoruta.dispositivo.domain.usecase.ObserveRouteSignUseCase
 import com.ecoruta.dispositivo.domain.usecase.ObserveThemeModeUseCase
 import com.ecoruta.dispositivo.domain.usecase.ObserveTripStatusUseCase
 import com.ecoruta.dispositivo.domain.usecase.PairDeviceUseCase
+import com.ecoruta.dispositivo.domain.usecase.RefreshRouteSignsUseCase
 import com.ecoruta.dispositivo.domain.usecase.ReportIncidentUseCase
 import com.ecoruta.dispositivo.domain.usecase.ResumeTelemetryUseCase
 import com.ecoruta.dispositivo.domain.usecase.RunTelemetrySessionUseCase
@@ -58,10 +65,10 @@ import com.ecoruta.dispositivo.domain.usecase.WasPairedBeforeUseCase
 import com.ecoruta.dispositivo.platform.KioskController
 import com.ecoruta.dispositivo.service.ForegroundTelemetryController
 import com.ecoruta.dispositivo.work.WorkManagerSyncScheduler
+import java.time.Clock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import java.time.Clock
 
 /**
  * Composition root. Owns every long-lived object and wires the layers together by hand.
@@ -145,7 +152,14 @@ class AppContainer(context: Context) {
         PairDeviceUseCase(sessionRepository, tripRepository, telemetryRepository, telemetryController)
     }
     val startTrip by lazy { StartTripUseCase(sessionRepository, tripRepository) }
-    val finishTrip by lazy { FinishTripUseCase(tripRepository) }
+    val finishTrip by lazy { FinishTripUseCase(tripRepository, routeSignRepository) }
+
+    // Route names ("letreros") the driver may show instead of the usual route
+    private val routeSignRepository: RouteSignRepository by lazy { RouteSignRepositoryImpl(devicePreferences, remote.restApi) }
+    val observeRouteSign by lazy { ObserveRouteSignUseCase(routeSignRepository) }
+    val refreshRouteSigns by lazy { RefreshRouteSignsUseCase(routeSignRepository, tripRepository) }
+    val changeRouteSign by lazy { ChangeRouteSignUseCase(routeSignRepository, refreshRouteSigns) }
+    val observeMotion by lazy { ObserveMotionUseCase(statusStore, MotionDetector(parametersRepository), clock) }
     val syncPendingData by lazy { SyncPendingDataUseCase(telemetryRepository, tripRepository) }
     val reportIncident by lazy {
         ReportIncidentUseCase(

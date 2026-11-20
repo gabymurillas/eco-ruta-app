@@ -11,6 +11,7 @@ import com.ecoruta.dispositivo.domain.model.BatteryStatus
 import com.ecoruta.dispositivo.domain.model.GpsStatus
 import com.ecoruta.dispositivo.domain.model.IncidentType
 import com.ecoruta.dispositivo.domain.model.Readiness
+import com.ecoruta.dispositivo.domain.model.RouteSign
 import com.ecoruta.dispositivo.domain.model.ThemeMode
 import com.ecoruta.dispositivo.domain.model.TripStatus
 import com.ecoruta.dispositivo.presentation.components.LocalThemeModeControl
@@ -19,13 +20,15 @@ import com.ecoruta.dispositivo.presentation.idle.IdleScreen
 import com.ecoruta.dispositivo.presentation.idle.IdleUiState
 import com.ecoruta.dispositivo.presentation.incident.IncidentScreen
 import com.ecoruta.dispositivo.presentation.incident.IncidentUiState
+import com.ecoruta.dispositivo.presentation.onboarding.OnboardingScreen
 import com.ecoruta.dispositivo.presentation.pairing.PairingScreen
 import com.ecoruta.dispositivo.presentation.pairing.PairingUiState
 import com.ecoruta.dispositivo.presentation.permission.LocationPermissionScreen
+import com.ecoruta.dispositivo.presentation.routepicker.RoutePickerScreen
+import com.ecoruta.dispositivo.presentation.routepicker.RoutePickerUiState
 import com.ecoruta.dispositivo.presentation.theme.EcoRutaTheme
 import com.ecoruta.dispositivo.presentation.trip.TripScreen
 import com.ecoruta.dispositivo.presentation.trip.TripUiState
-import com.ecoruta.dispositivo.presentation.onboarding.OnboardingScreen
 import java.time.Instant
 
 /**
@@ -34,7 +37,8 @@ import java.time.Instant
  *
  * `adb shell am start -f 0x10008000 -n com.ecoruta.dispositivo/.catalog.DesignCatalogActivity --es screen trip --es theme dark`
  * (0x10008000 = new task + clear task: a fresh catalog in its own task, apart from the real app).
- * Screens: welcome, permission, pairing, pairing_error, idle, idle_offline, trip, trip_offline, trip_nogps,
+ * Screens: welcome, permission, pairing, pairing_error, idle, idle_route, idle_offline, trip, trip_moving,
+ * trip_offline, trip_nogps, route_picker, route_picker_offline,
  * incident. Themes: light, dark.
  */
 class DesignCatalogActivity : ComponentActivity() {
@@ -65,7 +69,7 @@ private fun Sample(screen: String) {
         lastSentAt = now.minusSeconds(4),
         pendingPositions = 0,
     )
-    val idle = IdleUiState(unitName = "Unidad 12", routeName = "Ruta Centro – UNERG")
+    val idle = IdleUiState(unitName = "Unidad 12", routeName = ROUTE)
     when (screen) {
         "welcome" -> OnboardingScreen {}
         "permission" -> LocationPermissionScreen({}, {})
@@ -75,20 +79,27 @@ private fun Sample(screen: String) {
             {},
             {},
         )
-        "idle" -> IdleScreen(idle) {}
+        "idle" -> IdleScreen(idle, {}, {})
+        "idle_route" -> IdleScreen(idle.copy(signName = "Terminal – Villa Olímpica"), {}, {})
         "idle_offline" -> IdleScreen(
             idle.copy(
                 readiness = Readiness(isOnline = false, isLocationEnabled = true),
                 hasPendingClose = true,
                 errorRes = R.string.error_offline,
             ),
-        ) {}
-        "trip_offline" -> TripScreen(
-            TripUiState(trip.copy(isOnline = false, pendingPositions = 37, battery = BatteryStatus(41, isCharging = false))),
             {},
             {},
         )
-        "trip_nogps" -> TripScreen(TripUiState(trip.copy(gps = GpsStatus.NO_SIGNAL)), {}, {})
+        "trip_offline" -> TripScreen(
+            TripUiState(
+                trip.copy(isOnline = false, pendingPositions = 37, battery = BatteryStatus(41, isCharging = false)),
+                normalRouteName = ROUTE,
+            ),
+            {},
+            {},
+            {},
+        )
+        "trip_nogps" -> TripScreen(TripUiState(trip.copy(gps = GpsStatus.NO_SIGNAL), normalRouteName = ROUTE), {}, {}, {})
         "incident" -> IncidentScreen(
             IncidentUiState(selectedType = IncidentType.DETOUR, description = "Obras en la Av. Bolívar"),
             {},
@@ -96,6 +107,30 @@ private fun Sample(screen: String) {
             {},
             {},
         )
-        else -> TripScreen(TripUiState(trip), {}, {})
+        "trip_moving" -> TripScreen(
+            TripUiState(trip, normalRouteName = ROUTE, signName = "Terminal – Villa Olímpica", isMoving = true),
+            {},
+            {},
+            {},
+        )
+        "route_picker" -> RoutePickerScreen(pickerSample(), {}, {}, {})
+        "route_picker_offline" -> RoutePickerScreen(pickerSample().copy(isOnline = false), {}, {}, {})
+        else -> TripScreen(TripUiState(trip, normalRouteName = ROUTE, signName = "Terminal – Villa Olímpica"), {}, {}, {})
     }
 }
+
+private const val ROUTE = "Centro – UNERG"
+
+private fun pickerSample() = RoutePickerUiState(
+    normalRouteName = ROUTE,
+    options = listOf(
+        RouteSign("1", "Terminal – Villa Olímpica"),
+        RouteSign("2", "Centro – Los Laureles"),
+        RouteSign("3", "Terminal – Hospital"),
+        RouteSign("4", "La Morera – Centro"),
+    ),
+    currentId = "1",
+    selectedId = "2",
+    isLoading = false,
+)
+

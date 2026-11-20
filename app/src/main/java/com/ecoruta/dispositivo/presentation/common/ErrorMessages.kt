@@ -17,5 +17,6 @@ fun AppError.toMessageRes(): Int = when (this) {
     AppError.NoActiveTrip -> R.string.error_no_active_trip
     AppError.NoRouteAssigned -> R.string.error_no_route_assigned
     AppError.LocationUnavailable -> R.string.error_location_unavailable
+    AppError.RouteSignNotAllowed -> R.string.error_route_sign_not_allowed
     is AppError.Unexpected -> R.string.error_unexpected
 }

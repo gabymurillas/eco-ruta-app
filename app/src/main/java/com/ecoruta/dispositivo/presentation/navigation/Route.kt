@@ -10,11 +10,13 @@ sealed interface Route {
     @Serializable data object Idle : Route
     @Serializable data object Trip : Route
     @Serializable data object Incident : Route
+    @Serializable data object RoutePicker : Route
 }
 
 /**
  * The primary screen for each device state. [Route.Incident] is only ever pushed on top of
- * [Route.Trip], and [Route.Pairing] on top of [Route.Welcome].
+ * [Route.Trip], [Route.RoutePicker] on top of [Route.Idle] or [Route.Trip], and [Route.Pairing] on
+ * top of [Route.Welcome].
  */
 fun DeviceState.toRoute(): Route = when (this) {
     is DeviceState.Unpaired -> if (firstTime) Route.Welcome else Route.Pairing

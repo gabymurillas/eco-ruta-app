@@ -36,6 +36,7 @@ import com.ecoruta.dispositivo.presentation.components.PrimaryButton
 import com.ecoruta.dispositivo.presentation.components.SecondaryButton
 import com.ecoruta.dispositivo.presentation.components.ScreenScaffold
 import com.ecoruta.dispositivo.presentation.components.StatusDot
+import com.ecoruta.dispositivo.presentation.components.UnitRouteCard
 import com.ecoruta.dispositivo.presentation.components.Tone
 import com.ecoruta.dispositivo.presentation.theme.EcoColors
 import com.ecoruta.dispositivo.presentation.theme.EcoTheme
@@ -43,10 +44,11 @@ import com.ecoruta.dispositivo.presentation.theme.EcoTheme
 @Composable
 fun TripRoute(
     onReportIncident: () -> Unit,
+    onChangeRoute: () -> Unit,
     viewModel: TripViewModel = viewModel(factory = LocalViewModelFactory.current),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    TripScreen(state, viewModel::onFinishTrip, onReportIncident)
+    TripScreen(state, viewModel::onFinishTrip, onReportIncident, onChangeRoute)
 }
 
 @Composable
@@ -54,6 +56,7 @@ fun TripScreen(
     state: TripUiState,
     onFinishTrip: () -> Unit,
     onReportIncident: () -> Unit,
+    onChangeRoute: () -> Unit,
 ) {
     var confirmFinish by remember { mutableStateOf(false) }
     val status = state.status
@@ -70,6 +73,14 @@ fun TripScreen(
         },
     ) {
         StatusBanner(status)
+        UnitRouteCard(
+            normalRouteName = state.normalRouteName,
+            signName = state.signName,
+            onChange = onChangeRoute,
+            modifier = Modifier.fillMaxWidth(),
+            label = stringResource(R.string.route_current_label),
+            blockedReason = if (state.isMoving) stringResource(R.string.route_blocked_moving) else null,
+        )
         // A common height keeps each row even; the values stay large enough to read from the seat.
         Row(horizontalArrangement = Arrangement.spacedBy(EcoTheme.spacing.sm)) {
             GpsTile(status, Modifier.weight(1f).heightIn(min = EcoTheme.size.tileMin))

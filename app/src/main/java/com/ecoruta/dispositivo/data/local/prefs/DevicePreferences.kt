@@ -117,13 +117,43 @@ class DevicePreferences(
         }
     }
 
-    /** Forgets the open trip and any pending close: they belong to a unit this device left. */
+    /**
+     * Forgets the open trip, any pending close and the route names: they belong to a unit this
+     * device left.
+     */
     suspend fun forgetTrips() {
         store.edit {
             it.remove(ACTIVE_TRIP_ID)
             it.remove(PENDING_CLOSE_TRIP_ID)
             it.remove(PENDING_CLOSE_AT_MS)
+            it.remove(SIGN_ID)
+            it.remove(SIGN_NAME)
+            it.remove(SIGN_OPTIONS_JSON)
         }
+    }
+
+    /** The route name in force, as id and name; null is the unit's usual route. */
+    val routeSign: Flow<Pair<String, String>?> = store.data
+        .map { prefs -> prefs[SIGN_ID]?.let { id -> id to (prefs[SIGN_NAME] ?: "") } }
+        .distinctUntilChanged()
+
+    suspend fun setRouteSign(sign: Pair<String, String>?) {
+        store.edit {
+            if (sign == null) {
+                it.remove(SIGN_ID)
+                it.remove(SIGN_NAME)
+            } else {
+                it[SIGN_ID] = sign.first
+                it[SIGN_NAME] = sign.second
+            }
+        }
+    }
+
+    /** The last route-name options fetched, as the backend's own JSON. */
+    suspend fun cachedRouteSignOptions(): String? = store.data.first()[SIGN_OPTIONS_JSON]
+
+    suspend fun cacheRouteSignOptions(json: String) {
+        store.edit { it[SIGN_OPTIONS_JSON] = json }
     }
 
     /** Last `parametros` fetched from the backend, so a device that boots offline keeps its calibration. */
@@ -171,5 +201,8 @@ class DevicePreferences(
         val PARAMETERS_JSON = stringPreferencesKey("parameters_json")
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val ONBOARDING_SEEN = booleanPreferencesKey("onboarding_seen")
+        val SIGN_ID = stringPreferencesKey("route_sign_id")
+        val SIGN_NAME = stringPreferencesKey("route_sign_name")
+        val SIGN_OPTIONS_JSON = stringPreferencesKey("route_sign_options_json")
     }
 }

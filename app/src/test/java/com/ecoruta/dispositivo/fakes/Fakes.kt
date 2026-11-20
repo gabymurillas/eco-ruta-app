@@ -3,6 +3,9 @@ package com.ecoruta.dispositivo.fakes
 import com.ecoruta.dispositivo.domain.model.ThemeMode
 import com.ecoruta.dispositivo.domain.repository.SettingsRepository
 import com.ecoruta.dispositivo.core.Outcome
+import com.ecoruta.dispositivo.domain.repository.RouteSignRepository
+import com.ecoruta.dispositivo.domain.model.RouteSignOptions
+import com.ecoruta.dispositivo.domain.model.RouteSign
 import com.ecoruta.dispositivo.domain.model.BatteryStatus
 import com.ecoruta.dispositivo.domain.model.DeviceSession
 import com.ecoruta.dispositivo.domain.model.DeviceStatus
@@ -186,3 +189,32 @@ class FakeSettingsRepository(onboardingSeen: Boolean = false) : SettingsReposito
         onboardingSeen.value = true
     }
 }
+
+class FakeRouteSignRepository(
+    current: RouteSign? = null,
+    var options: RouteSignOptions = RouteSignOptions(current, listOf(RouteSign("s1", "Terminal – Villa Olímpica"))),
+) : RouteSignRepository {
+    override val current = MutableStateFlow(current)
+    var changeResult: Outcome<RouteSign?>? = null
+    var refreshes = mutableListOf<Boolean>()
+        private set
+
+    override suspend fun cachedOptions(): RouteSignOptions = options
+
+    override suspend fun refresh(adoptCurrent: Boolean): Outcome<RouteSignOptions> {
+        refreshes += adoptCurrent
+        if (adoptCurrent) current.value = options.current
+        return Outcome.Success(options)
+    }
+
+    override suspend fun change(signId: String?): Outcome<RouteSign?> {
+        val result = changeResult ?: Outcome.Success(options.options.firstOrNull { it.id == signId })
+        if (result is Outcome.Success) current.value = result.value
+        return result
+    }
+
+    override suspend fun resetLocal() {
+        current.value = null
+    }
+}
+

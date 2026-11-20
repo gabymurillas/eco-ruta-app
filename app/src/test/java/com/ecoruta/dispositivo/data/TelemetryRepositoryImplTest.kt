@@ -6,6 +6,7 @@ import com.ecoruta.dispositivo.data.local.db.PendingPositionDao
 import com.ecoruta.dispositivo.data.local.db.PendingPositionEntity
 import com.ecoruta.dispositivo.data.mapper.toEntity
 import com.ecoruta.dispositivo.data.remote.api.SupabaseRestApi
+import com.ecoruta.dispositivo.data.remote.dto.ChangedRouteSignDto
 import com.ecoruta.dispositivo.data.remote.dto.DeviceHealthDto
 import com.ecoruta.dispositivo.data.remote.dto.FinishTripDto
 import com.ecoruta.dispositivo.data.remote.dto.IncidentDto
@@ -13,6 +14,7 @@ import com.ecoruta.dispositivo.data.remote.dto.NewTripDto
 import com.ecoruta.dispositivo.data.remote.dto.ParameterDto
 import com.ecoruta.dispositivo.data.remote.dto.RegisterPositionsRequestDto
 import com.ecoruta.dispositivo.data.remote.dto.RegisterPositionsResponseDto
+import com.ecoruta.dispositivo.data.remote.dto.RouteSignsDto
 import com.ecoruta.dispositivo.data.remote.dto.TripDto
 import com.ecoruta.dispositivo.data.remote.dto.UnitRouteDto
 import com.ecoruta.dispositivo.data.repository.TelemetryRepositoryImpl
@@ -23,6 +25,9 @@ import com.ecoruta.dispositivo.domain.system.SyncScheduler
 import com.ecoruta.dispositivo.fakes.FixedParams
 import com.ecoruta.dispositivo.fakes.T0
 import com.ecoruta.dispositivo.fakes.fix
+import java.io.IOException
+import java.time.Clock
+import java.time.ZoneOffset
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
@@ -30,6 +35,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.json.JsonObject
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -38,9 +44,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import retrofit2.HttpException
 import retrofit2.Response
-import java.io.IOException
-import java.time.Clock
-import java.time.ZoneOffset
 
 class TelemetryRepositoryImplTest {
 
@@ -200,4 +203,8 @@ private class FakePositionsApi : SupabaseRestApi {
     override suspend fun insertIncident(body: IncidentDto): Unit = error("unused")
 
     override suspend fun getParameters(): List<ParameterDto> = error("unused")
+
+    override suspend fun getRouteSigns(body: JsonObject): RouteSignsDto = error("unused")
+
+    override suspend fun changeRouteSign(body: JsonObject): ChangedRouteSignDto = error("unused")
 }
